@@ -1,8 +1,9 @@
+
 export declare type HistoryLocationRaw = {
   path?: string
-  query?: Record<string, (string | number)[] | string | number>
+  query?: Record<string, (string | number | null)[] | string | number | null>
   hash?: string
-  name?: string | symbol
+  name?: string | symbol | null
   params?: Record<string, (string | number | null)[] | string | number | null>
 }
 

@@ -1,7 +1,22 @@
-declare module 'vue' {
-  interface ComponentCustomProperties {
+import Vue, { App, Plugin } from 'vue'
+
+declare module 'vue/types/vue' {
+  interface Vue {
     $histroyState: HistoryState
   }
+}
+
+export declare type HistoryStatePluginOptions = {
+  maxHistoryLength?: number
+  overrideDefaultScrollBehavior?: boolean
+  scrollingElements?: string | string[]
+  debug?: boolean
+}
+
+export declare const HistoryStatePluginInstallFunction = (app: App, options: HistoryStatePluginOptions) => any
+
+export declare const HistoryStatePlugin : Plugin = {
+  install: HistoryStatePluginInstallFunction
 }
 
 export declare function onBackupState(fn: () => {}): void
@@ -46,4 +61,3 @@ export interface HistoryState {
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
 }
-

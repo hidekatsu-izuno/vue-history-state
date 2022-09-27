@@ -6,8 +6,15 @@ import { ServerHistoryState } from "./history_state.server"
 
 export * from './history_state'
 
+export declare type HistoryStatePluginOptions = {
+  maxHistoryLength?: number
+  overrideDefaultScrollBehavior?: boolean
+  scrollingElements?: string | string[]
+  debug?: boolean
+}
+
 const HistoryStatePlugin: Plugin = {
-  install(app: App, options: any) {
+  install(app: App, options: HistoryStatePluginOptions) {
     options = options || {}
 
     const router: Router = app.config.globalProperties.$router
@@ -54,6 +61,8 @@ const HistoryStatePlugin: Plugin = {
     }
   }
 }
+
+export default HistoryStatePlugin
 
 function deepUnref(value: any) {
   value = isRef(value) ? unref(value) : value
@@ -112,5 +121,3 @@ export function useHistoryState() {
   }
   return instance.appContext.config.globalProperties.$historyState
 }
-
-export default HistoryStatePlugin

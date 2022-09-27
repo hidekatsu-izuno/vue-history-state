@@ -1,6 +1,7 @@
 import { nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
+import { HistoryStatePluginOptions } from './index'
 import { HistoryState, HistoryLocation, HistoryLocationRaw } from './history_state'
 
 export class ClientHistoryState implements HistoryState {
@@ -11,7 +12,7 @@ export class ClientHistoryState implements HistoryState {
   private _route?: HistoryLocation = undefined
 
   constructor(
-    public options: Record<string, any>,
+    public options: HistoryStatePluginOptions,
     router: Router
   ) {
     try {
@@ -20,7 +21,7 @@ export class ClientHistoryState implements HistoryState {
         if (backupText) {
           sessionStorage.removeItem('vue-history-state')
           try {
-            const backupState = JSON.parse(LZString.decompressFromUTF16(backupText))
+            const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || '[]')
             this._action = 'reload'
             this._page = backupState[0]
             this._items = backupState[1]
@@ -42,7 +43,7 @@ export class ClientHistoryState implements HistoryState {
           } catch (error) {
             console.error('Failed to save to sessionStorage.', error)
           }
-          
+
           if (this.options.debug) {
             console.log('unload', JSON.stringify(this))
           }
@@ -74,7 +75,7 @@ export class ClientHistoryState implements HistoryState {
 
       return orgPush.call(router.options.history, to, data)
     }
-    
+
     router.afterEach((to, from, failure) => {
       const page = window.history.state && window.history.state.page
       if (page != null && page !== this._page) {
@@ -96,21 +97,22 @@ export class ClientHistoryState implements HistoryState {
         const backupRoute = this._items[this._page] && this._items[this._page][0]
         if (backupRoute != null && !isSameRoute(backupRoute, this._route)) {
           const navType = getNavigationType()
+          let route = undefined
           if (navType === 'back_forward') {
-            if (this._page + 1 < this._items.length &&
-              this._items[this._page + 1] &&
-              this._items[this._page + 1][0] &&
-              isSameRoute(this._items[this._page + 1][0], this._route)
-            ) {
-              this._action = 'forward'
-              this._page = this._page + 1
-            } else if (this._page > 0 &&
+            if (this._page > 0 &&
               this._items[this._page - 1] &&
-              this._items[this._page - 1][0] &&
-              isSameRoute(this._items[this._page - 1][0], this._route)
+              (route = this._items[this._page - 1][0]) &&
+              isSameRoute(route, this._route)
             ) {
               this._action = 'back'
               this._page = this._page - 1
+            } else if (this._page + 1 < this._items.length &&
+              this._items[this._page + 1] &&
+              (route = this._items[this._page + 1][0]) &&
+              isSameRoute(route, this._route)
+            ) {
+              this._action = 'forward'
+              this._page = this._page + 1
             } else {
               this._action = 'back'
               this._items[this._page] = []
@@ -130,7 +132,7 @@ export class ClientHistoryState implements HistoryState {
         window.history.replaceState({
           ...window.history.state,
           page: this._page
-        }, '')  
+        }, '')
       }
 
       if (this.options.debug) {
@@ -144,10 +146,11 @@ export class ClientHistoryState implements HistoryState {
           return { el: to.hash }
         }
 
-        if (this._items[this._page] &&
-          this._items[this._page][2] &&
-          (this._action == 'back' || this._action == 'forward')) {
-          const positions = this._items[this._page][2]
+        let positions: Record<string, [number, number]> | undefined = undefined
+        if ((this._action == 'back' || this._action == 'forward') &&
+          this._items[this._page] &&
+          (positions = this._items[this._page][2])
+        ) {
 
           if (this.options.scrollingElements) {
             let scrollingElements = this.options.scrollingElements
@@ -163,7 +166,7 @@ export class ClientHistoryState implements HistoryState {
 
                 for (const selector of scrollingElements) {
                   const elem = document.querySelector(selector)
-                  const position = positions[selector]
+                  const position = positions && positions[selector]
                   if (elem && position) {
                     elem.scrollTo(position[0], position[1])
                   }
@@ -301,7 +304,7 @@ export class ClientHistoryState implements HistoryState {
     }
 
     if (this.options.overrideDefaultScrollBehavior) {
-      const positions = {}
+      const positions: Record<string, [number, number]> = {}
       if (this.options.scrollingElements) {
         let scrollingElements = this.options.scrollingElements
         if (!Array.isArray(scrollingElements)) {
@@ -405,17 +408,18 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
   if (route.name != null && (typeof route.name === 'symbol' || route.name.length > 0)) {
     filtered.name = route.name
     if (route.params) {
-      const params = {}
+      const params: Record<string, any> = {}
       for (let key in route.params) {
         const param = route.params[key]
         if (Array.isArray(param)) {
-          const params = new Array<string>()
+          const nparams = new Array<string>()
           for (let i = 0; i < param.length; i++) {
-            if (param != null) {
-              params.push(param[i].toString())
+            const nparam = param[i]
+            if (nparam != null) {
+              nparams.push(nparam.toString())
             }
           }
-          params[key] = params
+          params[key] = nparams
         } else if (param != null) {
           params[key] = param.toString()
         }
@@ -428,19 +432,20 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
   }
 
   if (route.query) {
-    const query = {}
+    const query: Record<string, any> = {}
     for (let key in route.query) {
       const param = route.query[key]
       if (Array.isArray(param)) {
-        const params = new Array<string | null>()
+        const nparams = new Array<string | null>()
         for (let i = 0; i < param.length; i++) {
-          if (param === null) {
-            params.push(null)
-          } else if (param != undefined) {
-            params.push(param[i].toString())
+          const nparam = param[i]
+          if (nparam === null) {
+            nparams.push(null)
+          } else if (nparam != undefined) {
+            nparams.push(nparam.toString())
           }
         }
-        query[key] = params
+        query[key] = nparams
       } else if (param === null) {
         query[key] = null
       } else if (param != undefined) {
@@ -482,7 +487,7 @@ function isMatchedRoute(a: HistoryLocation, b?: HistoryLocation) {
   return false
 }
 
-function isSameRoute(a: Record<string, any>, b?: Record<string, any>) {
+function isSameRoute(a: HistoryLocation, b?: HistoryLocation) {
   if (!b) {
     return false
   } else if (a.path && b.path) {

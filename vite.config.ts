@@ -4,7 +4,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'vue-history-state',
+      name: 'VueHistoryState',
       fileName: 'vue-history-state',
       formats: ['es', 'cjs']
     }
