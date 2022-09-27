@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "types": ["vite/client"]
+  },
+  "extends": "@tsconfig/recommended/tsconfig.json"
+}
