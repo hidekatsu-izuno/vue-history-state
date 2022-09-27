@@ -2,11 +2,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Node",
-    "emitDeclarationOnly": true,
-    "declaration": true,
-    "declarationMap": true,
-    "declarationDir": "./types",
-    "types": ["vite/client"]
+    "target": "ES2020"
   },
   "extends": "@tsconfig/recommended/tsconfig.json"
 }

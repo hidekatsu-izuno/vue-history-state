@@ -12,13 +12,11 @@ export declare type HistoryStatePluginOptions = {
   scrollingElements?: string | string[]
   debug?: boolean
 }
-
-export declare const HistoryStatePluginInstallFunction = (app: App, options: HistoryStatePluginOptions) => any
-
-export declare const HistoryStatePlugin : Plugin = {
-  install: HistoryStatePluginInstallFunction
+/*
+export const HistoryStatePlugin : Plugin {
+  install: ((app: App, options: HistoryStatePluginOptions) => any)
 }
-
+*/
 export declare function onBackupState(fn: () => {}): void
 
 export declare function useHistoryState(): HistoryState
