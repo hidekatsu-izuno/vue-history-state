@@ -1,4 +1,4 @@
-import { HistoryState, HistoryItem, HistoryLocationRaw } from './history_state'
+import { HistoryState, HistoryItem, HistoryLocationRaw } from './index'
 
 export class ServerHistoryState implements HistoryState {
   private _action = 'navigate'

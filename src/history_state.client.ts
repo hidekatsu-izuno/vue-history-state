@@ -1,8 +1,7 @@
 import { nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
-import { HistoryStatePluginOptions } from './index'
-import { HistoryState, HistoryLocation, HistoryLocationRaw } from './history_state'
+import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw } from './index'
 
 export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'

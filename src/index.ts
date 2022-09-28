@@ -1,17 +1,7 @@
 import { App, Plugin, getCurrentInstance, onUnmounted, useSSRContext, isRef, unref } from 'vue';
 import { Router } from 'vue-router'
-import { HistoryState } from './history_state'
 import { ClientHistoryState } from "./history_state.client"
 import { ServerHistoryState } from "./history_state.server"
-
-export * from './history_state'
-
-export declare type HistoryStatePluginOptions = {
-  maxHistoryLength?: number
-  overrideDefaultScrollBehavior?: boolean
-  scrollingElements?: string | string[]
-  debug?: boolean
-}
 
 const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStatePluginOptions) {
@@ -64,6 +54,72 @@ const HistoryStatePlugin: Plugin = {
 
 export default HistoryStatePlugin
 
+export declare type HistoryStatePluginOptions = {
+  maxHistoryLength?: number
+  overrideDefaultScrollBehavior?: boolean
+  scrollingElements?: string | string[]
+  debug?: boolean
+}
+
+export declare type HistoryLocationRaw = {
+  path?: string
+  query?: Record<string, (string | number | null)[] | string | number | null>
+  hash?: string
+  name?: string | symbol | null
+  params?: Record<string, (string | number | null)[] | string | number | null>
+}
+
+export declare type HistoryLocation = {
+  path?: string
+  query?: Record<string, string[] | string>
+  hash?: string
+  name?: string | symbol
+  params?: Record<string, (string | null)[] | string | null>
+}
+
+export declare type HistoryItem = {
+  location: HistoryLocation
+  data: any
+}
+
+export interface HistoryState {
+  get action(): string
+
+  get page(): number
+
+  get data(): any
+
+  get length(): number
+
+  getItem(page: number): HistoryItem | undefined
+
+  getItems(): Array<HistoryItem | undefined>
+
+  clearItemData(page: number): HistoryItem | undefined
+
+  findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
+}
+
+export function onBackupState(fn: () => {}) {
+  if ((import.meta as any).env && (import.meta as any).env.SSR) {
+    // no handle
+  } else {
+    const instance = getCurrentInstance()
+    if (instance == null) {
+      throw new Error("Current instance is not found.")
+    }
+
+    const backupDataFn = () => deepUnref(fn.call(instance))
+
+    const historyState = instance.appContext.config.globalProperties.$historyState
+    historyState._register(backupDataFn)
+
+    onUnmounted(() => {
+      historyState._unregister(backupDataFn)
+    })
+  }
+}
+
 function deepUnref(value: any) {
   value = isRef(value) ? unref(value) : value
 
@@ -91,26 +147,6 @@ function deepUnref(value: any) {
     return undefined
   } else {
     return value
-  }
-}
-
-export function onBackupState(fn: () => {}) {
-  if ((import.meta as any).env && (import.meta as any).env.SSR) {
-    // no handle
-  } else {
-    const instance = getCurrentInstance()
-    if (instance == null) {
-      throw new Error("Current instance is not found.")
-    }
-
-    const backupDataFn = () => deepUnref(fn.call(instance))
-
-    const historyState = instance.appContext.config.globalProperties.$historyState
-    historyState._register(backupDataFn)
-
-    onUnmounted(() => {
-      historyState._unregister(backupDataFn)
-    })
   }
 }
 

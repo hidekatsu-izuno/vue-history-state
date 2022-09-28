@@ -1,14 +1,25 @@
 {
   "name": "vue-history-state",
-  "version": "0.0.1",
+  "version": "0.7.0",
   "description": "History State Module for Vue3 and Nuxt3",
-  "main": "dist/vue-history-state.js",
-  "types": "types/vue-history-state.d.ts",
+  "main": "lib/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc --build",
     "build:vite": "vite build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version.major": "standard-version --release-as major",
+    "version.minor": "standard-version --release-as minor",
+    "version.patch": "standard-version --release-as patch",
+    "release": "git push --follow-tags origin master && npm publish"
   },
+  "files": [
+    "lib/",
+    "types/",
+    "LICENSE",
+    "package.json",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hidekatsu-izuno/vue-history-state.git"
@@ -27,6 +38,7 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/lz-string": "^1.3.34",
+    "standard-version": "^9.5.0",
     "typescript": "^4.8.3",
     "vite": "^3.1.3",
     "vue": "^3.2.39",
