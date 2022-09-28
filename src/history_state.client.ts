@@ -93,11 +93,13 @@ export class ClientHistoryState implements HistoryState {
       }
 
       if (!failure && this._action === 'reload') {
-        const backupRoute = this._items[this._page] && this._items[this._page][0]
-        if (backupRoute != null && !isSameRoute(backupRoute, this._route)) {
-          const navType = getNavigationType()
-          let route = undefined
-          if (navType === 'back_forward') {
+        const navType = getNavigationType()
+        if (navType === 'reload') {
+          // no handle
+        } else if (navType === 'back_forward') {
+          const backupRoute = this._items[this._page] && this._items[this._page][0]
+          if (backupRoute != null && !isSameRoute(backupRoute, this._route)) {
+            let route = undefined
             if (this._page > 0 &&
               this._items[this._page - 1] &&
               (route = this._items[this._page - 1][0]) &&
@@ -114,12 +116,12 @@ export class ClientHistoryState implements HistoryState {
               this._page = this._page + 1
             } else {
               this._action = 'back'
-              this._items[this._page] = []
+              this._page = this._page - 1
             }
-          } else if (navType !== 'reload') {
-            this._action = 'navigate'
-            this._items[this._page] = []
           }
+        } else {
+          this._action = 'navigate'
+          this._page = this._page + 1
         }
       }
 
