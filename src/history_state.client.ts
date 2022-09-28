@@ -76,6 +76,8 @@ export class ClientHistoryState implements HistoryState {
     }
 
     router.afterEach((to, from, failure) => {
+      this._route = filterRoute(to)
+
       const page = window.history.state && window.history.state.page
       if (page != null && page !== this._page) {
         if (page < this._page) {
@@ -89,8 +91,6 @@ export class ClientHistoryState implements HistoryState {
       if (this._page > this._items.length) {
         this._page = this._items.length
       }
-
-      this._route = filterRoute(to)
 
       if (!failure && this._action === 'reload') {
         const backupRoute = this._items[this._page] && this._items[this._page][0]

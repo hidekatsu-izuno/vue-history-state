@@ -18,7 +18,7 @@ const HistoryStatePlugin: Plugin = {
       options.overrideDefaultScrollBehavior = true;
     }
 
-    if ((import.meta as any).env && (import.meta as any).env.SSR) {
+    if ((import.meta as any).env?.SSR) {
       const historyState = new ServerHistoryState(options)
       app.config.globalProperties.$historyState = historyState as HistoryState
 
@@ -101,7 +101,7 @@ export interface HistoryState {
 }
 
 export function onBackupState(fn: () => {}) {
-  if ((import.meta as any).env && (import.meta as any).env.SSR) {
+  if ((import.meta as any).env?.SSR) {
     // no handle
   } else {
     const instance = getCurrentInstance()
