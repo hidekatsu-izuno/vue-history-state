@@ -44,7 +44,7 @@ export class ClientHistoryState implements HistoryState {
           }
 
           if (this.options.debug) {
-            console.log('unload', JSON.stringify(this))
+            this._debug('unload')
           }
         })
       }
@@ -59,7 +59,7 @@ export class ClientHistoryState implements HistoryState {
       }
 
       if (this.options.debug) {
-        console.log('beforeResolve', JSON.stringify(this))
+        this._debug('beforeResolve')
       }
     })
 
@@ -69,7 +69,7 @@ export class ClientHistoryState implements HistoryState {
       this._page++
 
       if (this.options.debug) {
-        console.log('push', JSON.stringify(this))
+        this._debug('push')
       }
 
       return orgPush.call(router.options.history, to, data)
@@ -140,7 +140,7 @@ export class ClientHistoryState implements HistoryState {
       }
 
       if (this.options.debug) {
-        console.log('afterEach', JSON.stringify(this))
+        this._debug('afterEach')
       }
     })
 
@@ -331,6 +331,14 @@ export class ClientHistoryState implements HistoryState {
         this._items[page] = []
       }
     }
+  }
+
+  private _debug(marker: string) {
+    console.log(`[${marker}] _page: ${this._page}, _action: ${JSON.stringify(this._action)}, _route: ${JSON.stringify(this._route)}\n` +
+      this._items.reduce((prev1: any, current1: any, index) => {
+        return `${prev1}  items[${index}] _route: ${JSON.stringify(current1[0])}, _data: ${JSON.stringify(current1[1])}, _position: ${JSON.stringify(current1[2])}\n`
+      }, '')
+    )
   }
 }
 

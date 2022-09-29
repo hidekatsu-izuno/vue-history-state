@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc --build --clean && tsc --build",
     "version.major": "standard-version --release-as major",
     "version.minor": "standard-version --release-as minor",
     "version.patch": "standard-version --release-as patch",
