@@ -125,7 +125,10 @@ export class ClientHistoryState implements HistoryState {
         }
       }
 
-      if (!this._items[this._page]) {
+      if (this._action === 'navigate' || this._action === 'push') {
+        this._items.length = this._page + 1
+        this._items[this._page] = []
+      } else if (!this._items[this._page]) {
         this._items[this._page] = []
       }
 

@@ -1,11 +1,13 @@
-# vue-history-state
+# Vue History State
 
-History state module for Vue3 and Nuxt3
+History state plugin for Vue3 and Nuxt3
 
-[![npm version](https://badge.fury.io/js/nuxt-history-state.svg)](https://badge.fury.io/js/nuxt-history-state)
+[![npm version](https://badge.fury.io/js/vue-history-state.svg)](https://badge.fury.io/js/vue-history-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Vue plugin to backup or restore historical states.
+
+This plugin is a new version of nuxt-history-state.
 
 ## Features
 
@@ -27,6 +29,8 @@ npm install vue-history-state
 
 ```javascript
 import HistoryStatePlugin from 'vue-history-state'
+
+...
 
 app.use(HistoryStatePlugin, {
   /* optional options */
@@ -73,9 +77,9 @@ If you set this option to a selecter, it applies the scrolling to the selector, 
 
 ## Usage
 
-### Backup component data
+### Composition API
 
-#### Composition API
+#### Backup state
 
 If you want to backup data, you have to define a *onBackupState* lifecycle method.
 
@@ -86,14 +90,27 @@ const data = reactive({ key: "value" })
 onBackupState(() => data)
 ```
 
-#### Option API
+#### Restore state
+
+```javascript
+import { useHistoryState } from 'vue-history-state'
+
+const historyState = useHistoryState()
+const data = reactive(Object.assign({
+        key: 'value',
+    }, historyState.data))
+```
+
+### Option API
+
+#### Backup state
 
 If you want to backup data, you have to define a *backupData* lifecycle method.
 
 ```javascript
 export default {
     backupData() {
-        return this.$data;
+        return data
     }
 }
 ```
@@ -115,9 +132,9 @@ export default {
 
     // Access to backup data in lifecycle methods of the instance.
     data() {
-        return this.$historyState.data || {
+        if this.$historyState.data || {
             ...
-        };
+        }
     }
 }
 ```
@@ -135,14 +152,10 @@ A action type that caused a navigation.
 - push: When a history.push is called.
 - forward: When a forward navigation is occurred.
 - back: When a back navigation is occurred.
-- invalid: When a history stata is invalid.
 
 By default this method returns basically 'navigate' on server. 
 But many browsers send cache-control='maxage=0' when reloading.
 It heuristically returns 'reload' then.
-
-If you set the reloadable option to true, it detects 'navigate'
-or 'reload' by using *_p* parameter.
 
 #### page
 
@@ -154,13 +167,13 @@ By defalut this method always returns 0 on server.
 
 A backup data.
 
-This method always returns null on server.
+This method always returns undefined on server.
 
 #### length
 
 A history length.
 
-This method cannot use on server.
+This method cannot be used on server.
 
 #### getItem(page)
 
@@ -172,7 +185,7 @@ This method cannot use on server.
 
 You can get a list of item.
 
-This method cannot use on server.
+This method cannot be used on server.
 
 #### findBackPage(location, partial = false)
 
@@ -182,18 +195,18 @@ If a history state is not found, this method will return undefined.
 
 If the partial option sets true, it matches any subset of the location.
 
-This method cannot use on server.
+This method cannot be used on server.
 
 ```javascript
-const delta = this.$historyState.findBackPage({
+const delta = historyState.findBackPage({
     path: 'test'
     // hash: ...
     // query: ...
     // name: ...
     // params: ...
-});
+})
 if (delta != null) {
-    this.$router.go(delta);
+    router.go(delta)
 }
 ```
 
@@ -201,7 +214,7 @@ if (delta != null) {
 
 You can clear a data of the specified page number. And it returns the previous data.
 
-This method cannot use on server.
+This method cannot be used on server.
 
 ## License
 
