@@ -85,7 +85,7 @@ If you set this option to a selecter, it applies the scrolling to the selector, 
 If you want to backup data, you have to define a *onBackupState* lifecycle method.
 
 ```javascript
-import { onBackupState } from 'vue-history-state'
+import { useHistoryState, onBackupState } from 'vue-history-state'
 
 const historyState = useHistoryState()
 
