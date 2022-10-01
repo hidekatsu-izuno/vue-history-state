@@ -10,13 +10,18 @@ Vue History state is a backup and restore of state plugin on Vue3 (or Nuxt 3).
 This plugin is a new version of [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state) 
 ported to work with Vue3 and Nuxt3.
 
-If you are using Nuxt2, please use nuxt-history-state.
-
 ## Features
 
 - Restore a last state when going forward or back.
 - Restore a state when reloading.
 - Restore a last state when going forward or back after reloading.
+
+## Supported Vuersion
+
+- Vue3
+- Nuxt3
+
+If you want to work with Nuxt2, you need to use nuxt-history-state.
 
 ## Install
 
@@ -115,7 +120,7 @@ export default {
 
 ## API
 
-### $historyState
+### historyState
 
 #### action
 
