@@ -18,8 +18,8 @@ ported to work with Vue3 and Nuxt3.
 
 ## Supported Vuersion
 
-- Vue3
-- Nuxt3
+- Vue 3.x + Vue-Router 4.x
+- Nuxt 3.x
 
 If you want to work with Nuxt2, you need to use nuxt-history-state.
 
