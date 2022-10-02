@@ -1,6 +1,6 @@
-# Vue History State
+# Vue History State Plugin
 
-History state plugin for Vue
+History state plugin for Vue v3.x / Nuxt v3.x
 
 [![npm version](https://badge.fury.io/js/vue-history-state.svg)](https://badge.fury.io/js/vue-history-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -21,7 +21,7 @@ ported to work with Vue3 and Nuxt3.
 - Vue 3.x + Vue-Router 4.x
 - Nuxt 3.x
 
-If you want to work with Nuxt2, you need to use nuxt-history-state.
+If you want to work with Nuxt2, you need to use [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state).
 
 ## Install
 
