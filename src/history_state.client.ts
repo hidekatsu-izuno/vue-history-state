@@ -14,6 +14,8 @@ export class ClientHistoryState implements HistoryState {
     public options: HistoryStatePluginOptions,
     router: Router
   ) {
+    const navType = getNavigationType()
+
     try {
       if (window.sessionStorage) {
         const backupText = sessionStorage.getItem('vue-history-state')
@@ -21,13 +23,18 @@ export class ClientHistoryState implements HistoryState {
           sessionStorage.removeItem('vue-history-state')
           try {
             const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || '[]')
-            this._action = 'reload'
             this._page = backupState[0]
             this._items = backupState[1]
+            if (navType === 'navigate') {
+              this._action = 'navigate'
+              this._page = this._page + 1
+            } else {
+              this._action = 'reload'
+            }
           } catch (error) {
             console.error('Failed to restore from sessionStorage.', error)
           }
-        } else if (getNavigationType() === 'reload') {
+        } else if (navType === 'reload') {
           console.error('The saved history state is not found.')
         }
 
@@ -90,39 +97,6 @@ export class ClientHistoryState implements HistoryState {
 
       if (this._page > this._items.length) {
         this._page = this._items.length
-      }
-
-      if (!failure && this._action === 'reload') {
-        const navType = getNavigationType()
-        if (navType === 'reload') {
-          // no handle
-        } else if (navType === 'back_forward') {
-          const backupRoute = this._items[this._page] && this._items[this._page][0]
-          if (backupRoute != null && !isSameRoute(backupRoute, this._route)) {
-            let route = undefined
-            if (this._page > 0 &&
-              this._items[this._page - 1] &&
-              (route = this._items[this._page - 1][0]) &&
-              isSameRoute(route, this._route)
-            ) {
-              this._action = 'back'
-              this._page = this._page - 1
-            } else if (this._page + 1 < this._items.length &&
-              this._items[this._page + 1] &&
-              (route = this._items[this._page + 1][0]) &&
-              isSameRoute(route, this._route)
-            ) {
-              this._action = 'forward'
-              this._page = this._page + 1
-            } else {
-              this._action = 'back'
-              this._page = this._page - 1
-            }
-          }
-        } else {
-          this._action = 'navigate'
-          this._page = this._page + 1
-        }
       }
 
       if (this._action === 'navigate' || this._action === 'push') {
