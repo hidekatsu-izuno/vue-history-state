@@ -1,6 +1,6 @@
 # Vue History State Plugin
 
-History state plugin for Vue v3.x / Nuxt v3.x
+History state plugin for Vue 3 / Nuxt 3
 
 [![npm version](https://badge.fury.io/js/vue-history-state.svg)](https://badge.fury.io/js/vue-history-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -8,7 +8,7 @@ History state plugin for Vue v3.x / Nuxt v3.x
 Vue History state is a backup and restore of state plugin on Vue3 (or Nuxt 3).
 
 This plugin is a new version of [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state) 
-ported to work with Vue3 and Nuxt3.
+ported to work with Vue 3 and Nuxt 3.
 
 ## Features
 
@@ -21,7 +21,7 @@ ported to work with Vue3 and Nuxt3.
 - Vue 3.x + Vue-Router 4.x
 - Nuxt 3.x
 
-If you want to work with Nuxt2, you need to use [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state).
+If you want to work with Nuxt 2, you need to use [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state).
 
 ## Install
 
@@ -33,7 +33,7 @@ npm install vue-history-state
 
 ## Setup
 
-### vue3
+### Vue 3
 
 ```javascript
 import HistoryStatePlugin from 'vue-history-state'
@@ -45,7 +45,7 @@ app.use(HistoryStatePlugin, {
 })
 ```
 
-### nuxt3
+### Nuxt 3
 
 ```javascript
 import HistoryStatePlugin from 'vue-history-state'
@@ -129,8 +129,8 @@ A action type that caused a navigation.
 - navigate: When a new page is navigated.
 - reload: When a page is reloaded.
 - push: When a history.push is called.
-- forward: When a forward navigation is occurred.
 - back: When a back navigation is occurred.
+- forward: When a forward navigation is occurred.
 
 By default this method returns basically 'navigate' on server. 
 But many browsers send cache-control='maxage=0' when reloading.
@@ -140,7 +140,7 @@ It heuristically returns 'reload' then.
 
 A current page number (an integer beginning with 0).
 
-By defalut this method always returns 0 on server.
+This method always returns 0 on server.
 
 #### data
 
