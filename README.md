@@ -1,11 +1,11 @@
 # Vue History State Plugin
 
-History state plugin for Vue 3 / Nuxt 3
+History state plugin for Vue 3 and Nuxt 3
 
 [![npm version](https://badge.fury.io/js/vue-history-state.svg)](https://badge.fury.io/js/vue-history-state)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Vue History state is a backup and restore of state plugin on Vue3 (or Nuxt 3).
+Vue History State Plugin is usefull for restoring state when users press "Back" or "Foward".
 
 This plugin is a new version of [nuxt-history-state](https://github.com/hidekatsu-izuno/nuxt-history-state) 
 ported to work with Vue 3 and Nuxt 3.
@@ -63,9 +63,9 @@ export default defineNuxtPlugin(app => {
 
 Sets the maximum length of hisotries that can hold data.
 
-When this option is not set, it is unlimited.
+When this option is not set, it depends on a max history length of a browser.
 
-*Default:* undefined (unlimited)
+*Default:* undefined
 
 #### overrideDefaultScrollBehavior
 
@@ -81,7 +81,7 @@ Indicates to which element the overrode behavior is applied.
 
 If you set this option to a selecter, it applies the scrolling to the selector, in addition to the window.
 
-*Default:* null
+*Default:* undefined
 
 ## Usage
 
