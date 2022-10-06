@@ -1,13 +1,17 @@
 import { App, nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
-import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw, onBackupState } from './index'
+import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw, onBackupState, HistoryItem } from './index'
 
 export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'
   private _page = 0
-  private _items = new Array<[HistoryLocation, unknown, Record<string, [number, number]>?] | []>([])
-  private _dataFuncs = new Array<() => unknown>()
+  private _items = new Array<[
+    HistoryLocation,
+    Record<string, unknown> | null | undefined,
+    Record<string, [number, number]> | null | undefined
+  ] | []>([])
+  private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
 
   constructor(
@@ -145,7 +149,7 @@ export class ClientHistoryState implements HistoryState {
           return { el: to.hash }
         }
 
-        let positions: Record<string, [number, number]> | undefined = undefined
+        let positions: Record<string, [number, number]> | null | undefined = undefined
         if ((this._action == 'back' || this._action == 'forward') &&
           this._items[this._page] &&
           (positions = this._items[this._page][2])
@@ -188,7 +192,7 @@ export class ClientHistoryState implements HistoryState {
   }
 
   /** @internal */
-  _register(fn: () => unknown) {
+  _register(fn: () => Record<string, unknown>) {
     const index = this._dataFuncs.indexOf(fn)
     if (index == -1) {
       this._dataFuncs.push(fn)
@@ -196,31 +200,32 @@ export class ClientHistoryState implements HistoryState {
   }
 
   /** @internal */
-  _unregister(fn: () => unknown) {
+  _unregister(fn: () => Record<string, unknown>) {
     const index = this._dataFuncs.indexOf(fn)
     if (index > -1) {
       this._dataFuncs.splice(index, 1)
     }
   }
 
-  get action() {
+  get action(): string {
     return this._action
   }
 
-  get page() {
+  get page(): number {
     return this._page
   }
 
-  get data() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get data(): Record<string, any> | undefined {
     const item = this._items[this._page]
-    return item && item[1]
+    return (item && item[1]) || undefined
   }
 
-  get length() {
+  get length(): number {
     return this._items.length
   }
 
-  getItem(page: number) {
+  getItem(page: number): HistoryItem | undefined {
     if (page >= this._items.length) {
       return undefined
     }
@@ -228,19 +233,24 @@ export class ClientHistoryState implements HistoryState {
     const item = this._items[page]
     return {
       location: (item && item[0]) || {},
-      data: item && item[1]
+      data: (item && item[1]) || undefined
     }
   }
 
-  getItems() {
+  getItems(): Array<HistoryItem> {
     const items = []
     for (let i = 0; i < this._items.length; i++) {
-      items.push(this.getItem(i))
+      const item = this._items[i]
+      items.push({
+        location: (item && item[0]) || {},
+        data: (item && item[1]) || undefined
+      })
     }
     return items
   }
 
-  clearItemData(page: number) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clearItemData(page: number): Record<string, any> | undefined {
     if (page >= this._items.length) {
       return undefined
     }
@@ -248,13 +258,13 @@ export class ClientHistoryState implements HistoryState {
     const item = this._items[page]
     if (item) {
       const data = item[1]
-      item[1] = null
-      return data
+      item[1] = undefined
+      return data || undefined
     }
     return undefined
   }
 
-  findBackPage(location: HistoryLocationRaw, partial?: boolean) {
+  findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined {
     if (typeof location === 'string') {
       location = { path: location }
     }
@@ -330,7 +340,7 @@ export class ClientHistoryState implements HistoryState {
 
   private _debug(marker: string) {
     console.log(`[${marker}] _page: ${this._page}, _action: ${JSON.stringify(this._action)}, _route: ${JSON.stringify(this._route)}\n` +
-      this._items.reduce((prev1: any, current1: any, index) => {
+      this._items.reduce((prev1: unknown, current1: Array<unknown>, index) => {
         return `${prev1}  items[${index}] _route: ${JSON.stringify(current1[0])}, _data: ${JSON.stringify(current1[1])}, _position: ${JSON.stringify(current1[2])}\n`
       }, '')
     )
@@ -415,7 +425,7 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
   if (route.name != null && (typeof route.name === 'symbol' || route.name.length > 0)) {
     filtered.name = route.name
     if (route.params) {
-      const params: Record<string, any> = {}
+      const params: Record<string, string | null | (string | null)[]> = {}
       for (const key in route.params) {
         const param = route.params[key]
         if (Array.isArray(param)) {
@@ -439,22 +449,22 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
   }
 
   if (route.query) {
-    const query: Record<string, any> = {}
+    const query: Record<string, string | string[]> = {}
     for (const key in route.query) {
       const param = route.query[key]
       if (Array.isArray(param)) {
-        const nparams = new Array<string | null>()
+        const nparams = new Array<string>()
         for (let i = 0; i < param.length; i++) {
           const nparam = param[i]
           if (nparam === null) {
-            nparams.push(null)
+            nparams.push('')
           } else if (nparam != undefined) {
             nparams.push(nparam.toString())
           }
         }
         query[key] = nparams
       } else if (param === null) {
-        query[key] = null
+        query[key] = ''
       } else if (param != undefined) {
         query[key] = param.toString()
       }
@@ -514,7 +524,10 @@ function isSameRoute(a: HistoryLocation, b?: HistoryLocation) {
   return false
 }
 
-function isObjectEqual(a: any, b: any): boolean {
+function isObjectEqual(
+  a: Record<string, unknown> | null | undefined,
+  b: Record<string, unknown> | null | undefined
+): boolean {
   if (!a || !b) {
     return a === b
   }
@@ -529,15 +542,23 @@ function isObjectEqual(a: any, b: any): boolean {
     const aVal = a[key]
     const bVal = b[key]
     if (typeof aVal === 'object' && typeof bVal === 'object') {
-      return isObjectEqual(aVal, bVal)
+      return isObjectEqual(
+        aVal as Record<string, unknown>,
+        bVal as Record<string, unknown>
+      )
     }
     return String(aVal) === String(bVal)
   })
 }
 
-function isObjectMatch(a: any, b: any): boolean {
-  if (a === b || a != null && b == null) {
+function isObjectMatch(
+  a: Record<string, unknown> | null | undefined,
+  b: Record<string, unknown> | null | undefined
+): boolean {
+  if (a === b || (a == null && b == null) || (a != null && b == null)) {
     return true
+  } else if (a == null || b == null) {
+    return false
   }
 
   const aKeys = Object.keys(a)
@@ -552,7 +573,10 @@ function isObjectMatch(a: any, b: any): boolean {
     if (aVal != null && bVal == null) {
       return true
     } else if (typeof aVal === 'object' && typeof bVal === 'object') {
-      return isObjectMatch(aVal, bVal)
+      return isObjectMatch(
+        aVal as Record<string, unknown>,
+        bVal as Record<string, unknown>
+      )
     }
     return String(aVal) === String(bVal)
   })

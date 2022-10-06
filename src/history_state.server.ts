@@ -46,36 +46,38 @@ export class ServerHistoryState implements HistoryState {
     })
   }
 
-  get action() {
+  get action(): string {
     return this._action;
   }
 
-  get page() {
+  get page(): number {
     return 0
   }
 
-  get data() {
-    return undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get data(): Record<string, any> | undefined {
+    return undefined
   }
 
   get length(): number {
-    throw new Error('length is not supported on server.');
+    throw new Error('length is not supported on server.')
   }
 
   getItem(page: number): HistoryItem | undefined {
-    throw new Error('getItem is not supported on server.');
+    throw new Error('getItem is not supported on server.')
   }
 
   getItems(): Array<HistoryItem> {
-    throw new Error('getItems is not supported on server.');
+    throw new Error('getItems is not supported on server.')
   }
 
-  clearItemData(page: number): any {
-    throw new Error('clearItemData is not supported on server.');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clearItemData(page: number): Record<string, any> {
+    throw new Error('clearItemData is not supported on server.')
   }
 
   findBackPage(location: HistoryLocationRaw): number {
-    throw new Error('findBackPosition is not supported on server.');
+    throw new Error('findBackPosition is not supported on server.')
   }
 
   private _debug(marker: string) {

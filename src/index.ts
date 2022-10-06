@@ -6,7 +6,8 @@ const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStatePluginOptions) {
     options = options || {}
 
-    app.config.globalProperties.$historyState = ((import.meta as any).env?.SSR)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    app.config.globalProperties.$historyState = (import.meta as any)?.env?.SSR
       ? new ServerHistoryState(app, options) : new ClientHistoryState(app, options)
   }
 }
@@ -38,7 +39,8 @@ export declare type HistoryLocation = {
 
 export declare type HistoryItem = {
   location: HistoryLocation
-  data: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Record<string, any> | undefined
 }
 
 export interface HistoryState {
@@ -46,21 +48,24 @@ export interface HistoryState {
 
   get page(): number
 
-  get data(): any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get data(): Record<string, any> | undefined
 
   get length(): number
 
   getItem(page: number): HistoryItem | undefined
 
-  getItems(): Array<HistoryItem | undefined>
+  getItems(): Array<HistoryItem>
 
-  clearItemData(page: number): any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clearItemData(page: number): Record<string, any> | undefined
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
 }
 
-export function onBackupState(fn: () => unknown) {
-  if ((import.meta as any).env?.SSR) {
+export function onBackupState(fn: () => Record<string, unknown>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((import.meta as any)?.env?.SSR) {
     // no handle
   } else {
     const instance = getCurrentInstance()
@@ -79,13 +84,13 @@ export function onBackupState(fn: () => unknown) {
   }
 }
 
-function deepUnref(value: any) {
+function deepUnref(value: unknown) {
   value = isRef(value) ? unref(value) : value
 
   if (value != null && typeof value === 'object') {
-    const newValue: Record<string, any> = {}
+    const newValue: Record<string, unknown> = {}
     for (const key in value) {
-      const unrefed = deepUnref(value[key])
+      const unrefed = deepUnref((value as Record<string, unknown>)[key])
       if (unrefed !== undefined) {
         newValue[key] = unrefed
       }
