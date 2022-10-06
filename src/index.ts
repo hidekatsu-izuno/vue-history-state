@@ -1,14 +1,16 @@
 import { App, Plugin, getCurrentInstance, onUnmounted, isRef, unref } from 'vue';
-import { ClientHistoryState } from "./history_state.client"
+import { ClientHistoryState } from './history_state.client'
 import { ServerHistoryState } from "./history_state.server"
 
 const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStatePluginOptions) {
     options = options || {}
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    app.config.globalProperties.$historyState = (import.meta as any)?.env?.SSR
-      ? new ServerHistoryState(app, options) : new ClientHistoryState(app, options)
+    if (typeof window === 'undefined') {
+      app.config.globalProperties.$historyState = new ServerHistoryState(app, options)
+    } else {
+      app.config.globalProperties.$historyState = new ClientHistoryState(app, options)
+    }
   }
 }
 
@@ -64,8 +66,7 @@ export interface HistoryState {
 }
 
 export function onBackupState(fn: () => Record<string, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if ((import.meta as any)?.env?.SSR) {
+  if (typeof window === 'undefined') {
     // no handle
   } else {
     const instance = getCurrentInstance()
