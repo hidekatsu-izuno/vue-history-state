@@ -1,5 +1,4 @@
-import { App, Plugin, getCurrentInstance, onUnmounted, useSSRContext, isRef, unref } from 'vue';
-import { Router } from 'vue-router'
+import { App, Plugin, getCurrentInstance, onUnmounted, isRef, unref } from 'vue';
 import { ClientHistoryState } from "./history_state.client"
 import { ServerHistoryState } from "./history_state.server"
 
@@ -7,48 +6,8 @@ const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStatePluginOptions) {
     options = options || {}
 
-    const router: Router = app.config.globalProperties.$router
-    if (router == null) {
-      throw new Error("Vue Router is needed.")
-    }
-
-    if (router && router.options.scrollBehavior) {
-      options.overrideDefaultScrollBehavior = false;
-    } else if (options.overrideDefaultScrollBehavior == null) {
-      options.overrideDefaultScrollBehavior = true;
-    }
-
-    if ((import.meta as any).env?.SSR) {
-      const historyState = new ServerHistoryState(options)
-      app.config.globalProperties.$historyState = historyState as HistoryState
-
-      let init = false
-      app.mixin({
-        beforeCreate() {
-          if (init) {
-            return
-          }
-
-          const context = useSSRContext()
-          if (!context) {
-            throw new Error('SSRContext is not found')
-          }
-          historyState._init(context)
-          init = true
-        }
-      })
-    } else {
-      const historyState = new ClientHistoryState(options || {}, router)
-      app.config.globalProperties.$historyState = historyState as HistoryState
-
-      app.mixin({
-        created() {
-          if (typeof this.$options.backupData === 'function') {
-            onBackupState(this.$options.backupData)
-          }
-        }
-      })
-    }
+    app.config.globalProperties.$historyState = ((import.meta as any).env?.SSR)
+      ? new ServerHistoryState(app, options) : new ClientHistoryState(app, options)
   }
 }
 
@@ -95,12 +54,12 @@ export interface HistoryState {
 
   getItems(): Array<HistoryItem | undefined>
 
-  clearItemData(page: number): HistoryItem | undefined
+  clearItemData(page: number): any
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
 }
 
-export function onBackupState(fn: () => {}) {
+export function onBackupState(fn: () => unknown) {
   if ((import.meta as any).env?.SSR) {
     // no handle
   } else {
@@ -125,7 +84,7 @@ function deepUnref(value: any) {
 
   if (value != null && typeof value === 'object') {
     const newValue: Record<string, any> = {}
-    for (let key in value) {
+    for (const key in value) {
       const unrefed = deepUnref(value[key])
       if (unrefed !== undefined) {
         newValue[key] = unrefed

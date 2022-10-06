@@ -1,19 +1,30 @@
-import { nextTick } from 'vue'
+import { App, nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
-import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw } from './index'
+import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw, onBackupState } from './index'
 
 export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'
   private _page = 0
-  private _items = new Array<[HistoryLocation, any, Record<string, [number, number]>?] | []>([])
-  private _dataFuncs = new Array<() => {}>()
+  private _items = new Array<[HistoryLocation, unknown, Record<string, [number, number]>?] | []>([])
+  private _dataFuncs = new Array<() => unknown>()
   private _route?: HistoryLocation = undefined
 
   constructor(
+    app: App,
     public options: HistoryStatePluginOptions,
-    router: Router
   ) {
+    const router: Router = app.config.globalProperties.$router
+    if (router == null) {
+      throw new Error("Vue Router is needed.")
+    }
+
+    if (router && router.options.scrollBehavior) {
+      options.overrideDefaultScrollBehavior = false;
+    } else if (options.overrideDefaultScrollBehavior == null) {
+      options.overrideDefaultScrollBehavior = true;
+    }
+
     const navType = getNavigationType()
 
     try {
@@ -72,6 +83,8 @@ export class ClientHistoryState implements HistoryState {
 
     const orgPush = router.options.history.push
     router.options.history.push = (to, data) => {
+      const ret = orgPush.call(router.options.history, to, data)
+
       this._action = 'push'
       this._page++
 
@@ -79,7 +92,7 @@ export class ClientHistoryState implements HistoryState {
         this._debug('push')
       }
 
-      return orgPush.call(router.options.history, to, data)
+      return ret
     }
 
     router.afterEach((to, from, failure) => {
@@ -115,6 +128,14 @@ export class ClientHistoryState implements HistoryState {
 
       if (this.options.debug) {
         this._debug('afterEach')
+      }
+    })
+
+    app.mixin({
+      created() {
+        if (typeof this.$options.backupData === 'function') {
+          onBackupState(this.$options.backupData)
+        }
       }
     })
 
@@ -167,7 +188,7 @@ export class ClientHistoryState implements HistoryState {
   }
 
   /** @internal */
-  _register(fn: () => {}) {
+  _register(fn: () => unknown) {
     const index = this._dataFuncs.indexOf(fn)
     if (index == -1) {
       this._dataFuncs.push(fn)
@@ -175,7 +196,7 @@ export class ClientHistoryState implements HistoryState {
   }
 
   /** @internal */
-  _unregister(fn: () => {}) {
+  _unregister(fn: () => unknown) {
     const index = this._dataFuncs.indexOf(fn)
     if (index > -1) {
       this._dataFuncs.splice(index, 1)
@@ -395,7 +416,7 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
     filtered.name = route.name
     if (route.params) {
       const params: Record<string, any> = {}
-      for (let key in route.params) {
+      for (const key in route.params) {
         const param = route.params[key]
         if (Array.isArray(param)) {
           const nparams = new Array<string>()
@@ -419,7 +440,7 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
 
   if (route.query) {
     const query: Record<string, any> = {}
-    for (let key in route.query) {
+    for (const key in route.query) {
       const param = route.query[key]
       if (Array.isArray(param)) {
         const nparams = new Array<string | null>()
