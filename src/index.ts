@@ -114,7 +114,7 @@ function deepUnref(value: unknown) {
   }
 }
 
-export function useHistoryState() {
+export function useHistoryState(): HistoryState {
   const instance = getCurrentInstance()
   if (instance == null) {
     throw new Error("Current instance is not found.")
