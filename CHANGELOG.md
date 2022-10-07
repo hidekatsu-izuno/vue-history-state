@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.7.3](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.7.2...v0.7.3) (2022-10-07)
 
+- Add a src directory to the list of publish files
+
 ### [0.7.2](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.7.1...v0.7.2) (2022-10-07)
 
 - Add test cases
