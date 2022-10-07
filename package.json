@@ -1,6 +1,6 @@
 {
   "name": "vue-history-state",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "History State Module for Vue3 and Nuxt3",
   "main": "lib/index.js",
   "types": "types/index.d.ts",
@@ -14,6 +14,7 @@
     "release": "git push --follow-tags origin main && npm publish"
   },
   "files": [
+    "src/",
     "lib/",
     "types/",
     "LICENSE",
