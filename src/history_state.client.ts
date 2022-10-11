@@ -170,9 +170,10 @@ export class ClientHistoryState implements HistoryState {
         }
 
         let positions: Record<string, [number, number]> | null | undefined = undefined
-        if ((this._action == 'back' || this._action == 'forward') &&
-          this._items[this._page] &&
-          (positions = this._items[this._page][2])
+        if (
+          (this._action == 'back' || this._action == 'forward' || this._action == 'reload')
+          && this._items[this._page]
+          && (positions = this._items[this._page][2])
         ) {
 
           if (this.options.scrollingElements) {
