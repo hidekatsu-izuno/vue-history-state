@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### [0.7.4](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.7.3...v0.7.4) (2022-10-11)
 
 - Improve back_forward detection
+- Add reload as a scrolling targets
 
 ### [0.7.3](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.7.2...v0.7.3) (2022-10-07)
 
