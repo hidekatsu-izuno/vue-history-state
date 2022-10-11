@@ -111,6 +111,25 @@ export class ClientHistoryState implements HistoryState {
           this._action = 'forward'
         }
         this._page = page
+      } else if (this._action === 'reload' && getNavigationType() === 'back_forward') {
+        let route = null
+        if (this._page + 1 === this._items.length) {
+          this._action = 'forward'
+        } else if (
+          this._page > 0
+          && (route = this._items[this._page - 1][0])
+          && isSameRoute(route, this._route)
+        ) {
+          this._action = 'back'
+        } else if (
+          this._page + 1 < this._items.length
+          && (route = this._items[this._page + 1][0])
+          && isSameRoute(route, this._route)
+        ) {
+          this._action = 'forward'
+        } else {
+          this._action = 'back'
+        }
       }
 
       if (this._page > this._items.length) {
@@ -159,7 +178,7 @@ export class ClientHistoryState implements HistoryState {
           if (this.options.scrollingElements) {
             let scrollingElements = this.options.scrollingElements
             if (!Array.isArray(scrollingElements)) {
-              scrollingElements = [ scrollingElements ]
+              scrollingElements = [scrollingElements]
             }
             nextTick(async () => {
               for (let i = 0; i < 10; i++) {
