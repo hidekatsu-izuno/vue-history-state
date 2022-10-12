@@ -103,7 +103,14 @@ export class ClientHistoryState implements HistoryState {
       this._route = filterRoute(to)
 
       const page = window.history.state && window.history.state.page
-      if (getNavigationType() === 'back_forward') {
+      if (page != null && page !== this._page) {
+        if (page < this._page) {
+          this._action = 'back'
+        } else if (page > this._page) {
+          this._action = 'forward'
+        }
+        this._page = page
+      } else if (this._action === 'reload' && getNavigationType() === 'back_forward') {
         if (page >= this._page) {
           this._action = 'forward'
         } else {
