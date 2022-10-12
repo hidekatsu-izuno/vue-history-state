@@ -171,8 +171,8 @@ This method cannot be used on server.
 #### findBackPage(location, partial = false): number
 
 You can get a page number of the first matched history, 
-searching backward in the same site starting at the current page.
-If a history state is not found, this method will return undefined.
+searching backward in the continuous same site starting at the current page.
+If a history state is not found or is not in the continuous same site, this method will return undefined.
 
 If the partial option sets true, it matches any subset of the location.
 
