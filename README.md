@@ -154,13 +154,15 @@ A history length.
 
 This method cannot be used on server.
 
-#### getItem(page): { location, data, scrollPositions }
+#### getItem(page): { location, data, scrollPositions? }
 
-You can get a location, data, scrollPositions of the specified page number.
+You can get a location and data of the specified page number.
+
+If you set 'overrideDefaultScrollBehavior' option to true, the item has scrollPositions property.
 
 This method cannot use on server.
 
-#### getItems(): { location, data, scrollPositions }[]
+#### getItems(): { location, data, scrollPositions? }[]
 
 You can get a list of item.
 

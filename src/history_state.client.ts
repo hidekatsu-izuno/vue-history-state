@@ -8,9 +8,10 @@ export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'
   private _page = 0
   private _items = new Array<[
+    'navigate' | 'push',
     HistoryLocation,
     Record<string, unknown> | null | undefined,
-    Record<string, { left: number, top: number }> | null | undefined
+    Record<string, { left: number, top: number }> | null | undefined,
   ] | []>([])
   private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
@@ -162,7 +163,7 @@ export class ClientHistoryState implements HistoryState {
         if (
           (this._action == 'back' || this._action == 'forward' || this._action == 'reload')
           && this._items[this._page]
-          && (positions = this._items[this._page][2])
+          && (positions = this._items[this._page][3])
         ) {
 
           if (this.options.scrollingElements) {
@@ -225,7 +226,7 @@ export class ClientHistoryState implements HistoryState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get data(): Record<string, any> | undefined {
     const item = this._items[this._page]
-    return (item && item[1]) || undefined
+    return (item && item[2]) || undefined
   }
 
   get length(): number {
@@ -238,22 +239,28 @@ export class ClientHistoryState implements HistoryState {
     }
 
     const item = this._items[page]
-    return {
-      location: (item && item[0]) || {},
-      data: (item && item[1]) || undefined,
-      scrollPositions: (item && item[2]) || {},
+    const result: HistoryItem = {
+      location: (item && item[1]) || {},
+      data: (item && item[2]) || undefined,
     }
+    if (this.options.overrideDefaultScrollBehavior) {
+      result.scrollPositions = (item && item[3]) || {}
+    }
+    return result
   }
 
   getItems(): Array<HistoryItem> {
     const items = []
     for (let i = 0; i < this._items.length; i++) {
       const item = this._items[i]
-      items.push({
-        location: (item && item[0]) || {},
-        data: (item && item[1]) || undefined,
-        scrollPositions: (item && item[2]) || {},
-      })
+      const result: HistoryItem = {
+        location: (item && item[1]) || {},
+        data: (item && item[2]) || undefined,
+      }
+      if (this.options.overrideDefaultScrollBehavior) {
+        result.scrollPositions = (item && item[3]) || {}
+      }
+      items.push(result)
     }
     return items
   }
@@ -266,8 +273,8 @@ export class ClientHistoryState implements HistoryState {
 
     const item = this._items[page]
     if (item) {
-      const data = item[1]
-      item[1] = undefined
+      const data = item[2]
+      item[2] = undefined
       return data || undefined
     }
     return undefined
@@ -291,20 +298,26 @@ export class ClientHistoryState implements HistoryState {
       }
     }
 
-    const normalized = filterRoute(location)
-    for (let page = this._page - 1; page >= 0; page--) {
-      const backLocation = this._items[page][0]
-      if (!backLocation) {
-        continue
-      }
-
-      if (partial) {
-        if (isMatchedRoute(backLocation, normalized)) {
-          return page
+    const action = this._items[this._page][0]
+    if (action !== 'navigate') {
+      const normalized = filterRoute(location)
+      for (let page = this._page - 1; page >= 0; page--) {
+        const backLocation = this._items[page][1]
+        if (backLocation) {
+          if (partial) {
+            if (isMatchedRoute(backLocation, normalized)) {
+              return page
+            }
+          } else {
+            if (isSameRoute(backLocation, normalized)) {
+              return page
+            }
+          }
         }
-      } else {
-        if (isSameRoute(backLocation, normalized)) {
-          return page
+
+        const backAction = this._items[page][0]
+        if (backAction === 'navigate') {
+          break
         }
       }
     }
@@ -312,13 +325,19 @@ export class ClientHistoryState implements HistoryState {
   }
 
   private _save() {
-    this._items[this._page][0] = this._route
+    if (this._action === 'navigate') {
+      this._items[this._page][0] = 'navigate'
+    } else if (this._action === 'push') {
+      this._items[this._page][0] = 'push'
+    }
+
+    this._items[this._page][1] = this._route
 
     if (this._dataFuncs != null) {
       const backupData = this._dataFuncs.reduce((prev, current) => {
         return Object.assign(prev, current())
       }, {})
-      this._items[this._page][1] = backupData
+      this._items[this._page][2] = backupData
     }
 
     if (this.options.overrideDefaultScrollBehavior) {
@@ -336,7 +355,7 @@ export class ClientHistoryState implements HistoryState {
         }
       }
       positions['window'] = { left: window.pageXOffset, top: window.pageYOffset }
-      this._items[this._page][2] = positions
+      this._items[this._page][3] = positions
     }
 
     const maxPage = Math.min(this.options.maxHistoryLength || window.history.length, window.history.length)
@@ -348,9 +367,9 @@ export class ClientHistoryState implements HistoryState {
   }
 
   private _debug(marker: string) {
-    console.log(`[${marker}] _page: ${this._page}, _action: ${JSON.stringify(this._action)}, _route: ${JSON.stringify(this._route)}\n` +
+    console.log(`[${marker}] page: ${this._page}, action: ${JSON.stringify(this._action)}, route: ${JSON.stringify(this._route)}\n` +
       this._items.reduce((prev1: unknown, current1: Array<unknown>, index) => {
-        return `${prev1}  items[${index}] _route: ${JSON.stringify(current1[0])}, _data: ${JSON.stringify(current1[1])}, _position: ${JSON.stringify(current1[2])}\n`
+        return `${prev1}  items[${index}] action: ${JSON.stringify(current1[0])}, route: ${JSON.stringify(current1[1])}, data: ${JSON.stringify(current1[2])}, scrollPositions: ${JSON.stringify(current1[3])}\n`
       }, '')
     )
   }
