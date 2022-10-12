@@ -142,7 +142,7 @@ A current page number (an integer beginning with 0).
 
 This method always returns 0 on server.
 
-#### data: object or undefined
+#### data: object?
 
 A backup data.
 
@@ -154,7 +154,7 @@ A history length.
 
 This method cannot be used on server.
 
-#### getItem(page): { location, data, scrollPositions? }
+#### getItem(page): { location, data, scrollPositions? }?
 
 You can get a location and data of the specified page number.
 
@@ -168,7 +168,7 @@ You can get a list of item.
 
 This method cannot be used on server.
 
-#### findBackPage(location, partial = false): number
+#### findBackPage(location, partial = false): number?
 
 You can get a page number of the first matched history, 
 searching backward in the continuous same site starting at the current page.
@@ -195,7 +195,7 @@ if (page != null) {
 }
 ```
 
-#### clearItemData(page): object or undefined
+#### clearItemData(page): object?
 
 You can clear a data of the specified page number. And it returns the previous data.
 
