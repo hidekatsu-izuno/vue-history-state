@@ -154,13 +154,13 @@ A history length.
 
 This method cannot be used on server.
 
-#### getItem(page)
+#### getItem(page): { location, data, scrollPositions }
 
-You can get a location and data of the specified page number.
+You can get a location, data, scrollPositions of the specified page number.
 
 This method cannot use on server.
 
-#### getItems()
+#### getItems(): { location, data, scrollPositions }[]
 
 You can get a list of item.
 
@@ -168,8 +168,8 @@ This method cannot be used on server.
 
 #### findBackPage(location, partial = false)
 
-You can get the relative position of the first matched history, 
-searching backward starting at the current page.
+You can get a page number of the first matched history, 
+searching backward in the same site starting at the current page.
 If a history state is not found, this method will return undefined.
 
 If the partial option sets true, it matches any subset of the location.
@@ -177,15 +177,19 @@ If the partial option sets true, it matches any subset of the location.
 This method cannot be used on server.
 
 ```javascript
-const delta = historyState.findBackPage({
-    path: 'test'
+const page = historyState.findBackPage({
+    path: '/test'
     // hash: ...
     // query: ...
     // name: ...
     // params: ...
 })
-if (delta != null) {
-    router.go(delta)
+if (page != null) {
+    historyState.clearItemData(page)
+
+    // go back to the page in site.
+    const router = useRouter()
+    router.go(page - historyState.page)
 }
 ```
 

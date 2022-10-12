@@ -43,6 +43,7 @@ export declare type HistoryItem = {
   location: HistoryLocation
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any> | undefined
+  scrollPositions: Record<string, { left: number, top: number }>
 }
 
 export interface HistoryState {

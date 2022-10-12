@@ -10,7 +10,7 @@ export class ClientHistoryState implements HistoryState {
   private _items = new Array<[
     HistoryLocation,
     Record<string, unknown> | null | undefined,
-    Record<string, [number, number]> | null | undefined
+    Record<string, { left: number, top: number }> | null | undefined
   ] | []>([])
   private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
@@ -30,9 +30,8 @@ export class ClientHistoryState implements HistoryState {
       options.overrideDefaultScrollBehavior = true;
     }
 
-    const navType = getNavigationType()
-
     try {
+      const navType = getNavigationType()
       if (window.sessionStorage) {
         const backupText = sessionStorage.getItem('vue-history-state')
         if (backupText) {
@@ -104,31 +103,14 @@ export class ClientHistoryState implements HistoryState {
       this._route = filterRoute(to)
 
       const page = window.history.state && window.history.state.page
-      if (page != null && page !== this._page) {
-        if (page < this._page) {
-          this._action = 'back'
-        } else if (page > this._page) {
-          this._action = 'forward'
-        }
-        this._page = page
-      } else if (this._action === 'reload' && getNavigationType() === 'back_forward') {
-        let route = null
-        if (this._page + 1 === this._items.length) {
-          this._action = 'forward'
-        } else if (
-          this._page > 0
-          && (route = this._items[this._page - 1][0])
-          && isSameRoute(route, this._route)
-        ) {
-          this._action = 'back'
-        } else if (
-          this._page + 1 < this._items.length
-          && (route = this._items[this._page + 1][0])
-          && isSameRoute(route, this._route)
-        ) {
+      if (getNavigationType() === 'back_forward') {
+        if (page >= this._page) {
           this._action = 'forward'
         } else {
           this._action = 'back'
+        }
+        if (page != null) {
+          this._page = page
         }
       }
 
@@ -169,7 +151,7 @@ export class ClientHistoryState implements HistoryState {
           return { el: to.hash }
         }
 
-        let positions: Record<string, [number, number]> | null | undefined = undefined
+        let positions: Record<string, { left: number, top: number }> | null | undefined = undefined
         if (
           (this._action == 'back' || this._action == 'forward' || this._action == 'reload')
           && this._items[this._page]
@@ -192,7 +174,7 @@ export class ClientHistoryState implements HistoryState {
                   const elem = document.querySelector(selector)
                   const position = positions && positions[selector]
                   if (elem && position) {
-                    elem.scrollTo(position[0], position[1])
+                    elem.scrollTo(position.left, position.top)
                   }
                 }
               }
@@ -200,10 +182,7 @@ export class ClientHistoryState implements HistoryState {
           }
 
           if (positions.window) {
-            return {
-              left: positions.window[0],
-              top: positions.window[1],
-            }
+            return positions.window
           }
         }
 
@@ -254,7 +233,8 @@ export class ClientHistoryState implements HistoryState {
     const item = this._items[page]
     return {
       location: (item && item[0]) || {},
-      data: (item && item[1]) || undefined
+      data: (item && item[1]) || undefined,
+      scrollPositions: (item && item[2]) || {},
     }
   }
 
@@ -264,7 +244,8 @@ export class ClientHistoryState implements HistoryState {
       const item = this._items[i]
       items.push({
         location: (item && item[0]) || {},
-        data: (item && item[1]) || undefined
+        data: (item && item[1]) || undefined,
+        scrollPositions: (item && item[2]) || {},
       })
     }
     return items
@@ -312,11 +293,11 @@ export class ClientHistoryState implements HistoryState {
 
       if (partial) {
         if (isMatchedRoute(backLocation, normalized)) {
-          return pos - this._page
+          return this._page
         }
       } else {
         if (isSameRoute(backLocation, normalized)) {
-          return pos - this._page
+          return this._page
         }
       }
     }
@@ -334,7 +315,7 @@ export class ClientHistoryState implements HistoryState {
     }
 
     if (this.options.overrideDefaultScrollBehavior) {
-      const positions: Record<string, [number, number]> = {}
+      const positions: Record<string, { left: number, top: number }> = {}
       if (this.options.scrollingElements) {
         let scrollingElements = this.options.scrollingElements
         if (!Array.isArray(scrollingElements)) {
@@ -343,11 +324,11 @@ export class ClientHistoryState implements HistoryState {
         for (const selector of scrollingElements) {
           const elem = document.querySelector(selector)
           if (elem) {
-            positions[selector] = [elem.scrollLeft, elem.scrollTop]
+            positions[selector] = { left: elem.scrollLeft, top: elem.scrollTop }
           }
         }
       }
-      positions['window'] = [window.pageXOffset, window.pageYOffset]
+      positions['window'] = { left: window.pageXOffset, top: window.pageYOffset }
       this._items[this._page][2] = positions
     }
 
@@ -386,7 +367,6 @@ function getNavigationType() {
   return 'navigate'
 }
 
-
 function parseFullPath(path: string) {
   let hash = undefined
   let query = undefined
@@ -402,6 +382,7 @@ function parseFullPath(path: string) {
     query = parseQuery(path.slice(qparamsIndex + 1))
     path = path.slice(0, qparamsIndex)
   }
+
   return {
     path,
     hash,
