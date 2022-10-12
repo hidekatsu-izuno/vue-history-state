@@ -136,19 +136,19 @@ By default this method returns basically 'navigate' on server.
 But many browsers send cache-control='maxage=0' when reloading.
 It heuristically returns 'reload' then.
 
-#### page
+#### page: number
 
 A current page number (an integer beginning with 0).
 
 This method always returns 0 on server.
 
-#### data
+#### data: object or undefined
 
 A backup data.
 
 This method always returns undefined on server.
 
-#### length
+#### length: number
 
 A history length.
 
@@ -166,7 +166,7 @@ You can get a list of item.
 
 This method cannot be used on server.
 
-#### findBackPage(location, partial = false)
+#### findBackPage(location, partial = false): number
 
 You can get a page number of the first matched history, 
 searching backward in the same site starting at the current page.
@@ -193,7 +193,7 @@ if (page != null) {
 }
 ```
 
-#### clearItemData(page)
+#### clearItemData(page): object or undefined
 
 You can clear a data of the specified page number. And it returns the previous data.
 

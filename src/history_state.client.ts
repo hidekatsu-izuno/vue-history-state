@@ -285,19 +285,19 @@ export class ClientHistoryState implements HistoryState {
     }
 
     const normalized = filterRoute(location)
-    for (let pos = this._page - 1; pos >= 0; pos--) {
-      const backLocation = this._items[pos][0]
+    for (let page = this._page - 1; page >= 0; page--) {
+      const backLocation = this._items[page][0]
       if (!backLocation) {
         continue
       }
 
       if (partial) {
         if (isMatchedRoute(backLocation, normalized)) {
-          return this._page
+          return page
         }
       } else {
         if (isSameRoute(backLocation, normalized)) {
-          return this._page
+          return page
         }
       }
     }
