@@ -29,6 +29,7 @@ export declare type HistoryLocationRaw = {
   hash?: string
   name?: string | symbol | null
   params?: Record<string, (string | number | null)[] | string | number | null>
+  partial?: boolean
 }
 
 export declare type HistoryLocation = {
@@ -39,11 +40,14 @@ export declare type HistoryLocation = {
   params?: Record<string, (string | null)[] | string | null>
 }
 
-export declare type HistoryItem = {
-  location: HistoryLocation
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: Record<string, any> | undefined
-  scrollPositions?: Record<string, { left: number, top: number }>
+export interface HistoryItem {
+  get location(): HistoryLocation
+
+  get data(): Record<string, any> | undefined
+
+  set data(value: Record<string, any> | undefined)
+
+  get scrollPositions(): Record<string, { left: number, top: number }> | undefined
 }
 
 export interface HistoryState {
@@ -51,7 +55,6 @@ export interface HistoryState {
 
   get page(): number
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get data(): Record<string, any> | undefined
 
   get length(): number
@@ -60,7 +63,6 @@ export interface HistoryState {
 
   getItems(): Array<HistoryItem>
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearItemData(page: number): Record<string, any> | undefined
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined

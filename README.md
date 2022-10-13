@@ -97,6 +97,9 @@ const historyState = useHistoryState()
 // Restore data
 const data = reactive(historyState.data || { key: "value" })
 
+// fetch or restore data
+const { data } = await useAsyncData(() => historyState.data || $fetch('/api/data'), { initialCache: false })
+
 // Backup data
 onBackupState(() => data)
 ```
@@ -120,7 +123,7 @@ export default {
 
 ## API
 
-### historyState
+### HistoryState
 
 #### action
 
@@ -146,6 +149,8 @@ This method always returns 0 on server.
 
 A backup data.
 
+If you want to clear the backup data, you set undefined to this property.
+
 This method always returns undefined on server.
 
 #### length: number
@@ -154,7 +159,7 @@ A history length.
 
 This method cannot be used on server.
 
-#### getItem(page): { location, data, scrollPositions? }?
+#### getItem(page): HistoryItem?
 
 You can get a location and data of the specified page number.
 
@@ -162,13 +167,13 @@ If you set 'overrideDefaultScrollBehavior' option to true, the item has scrollPo
 
 This method cannot use on server.
 
-#### getItems(): { location, data, scrollPositions? }[]
+#### getItems(): HistoryItem[]
 
 You can get a list of item.
 
 This method cannot be used on server.
 
-#### findBackPage(location, partial = false): number?
+#### findBackPage(location): number?
 
 You can get a page number of the first matched history, 
 searching backward in the continuous same site starting at the current page.
@@ -185,9 +190,10 @@ const page = historyState.findBackPage({
     // query: ...
     // name: ...
     // params: ...
+    // partial: true (default: false)
 })
 if (page != null) {
-    historyState.clearItemData(page)
+    historyState.getItem(page).data = undefined
 
     // go back to the page in site.
     const router = useRouter()
@@ -195,11 +201,21 @@ if (page != null) {
 }
 ```
 
-#### clearItemData(page): object?
+### HistoryItem
 
-You can clear a data of the specified page number. And it returns the previous data.
+#### location: { path?, name?, params?, query?, hash? }
 
-This method cannot be used on server.
+A location of this history.
+
+#### data: object?
+
+A backup data.
+
+If you want to clear the backup data, you set undefined to this property.
+
+#### scrollPositions: object
+
+A saved scroll positions.
 
 ## License
 

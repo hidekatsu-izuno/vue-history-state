@@ -8,11 +8,11 @@ export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'
   private _page = 0
   private _items = new Array<[
-    'navigate' | 'push',
-    HistoryLocation,
-    Record<string, unknown> | null | undefined,
-    Record<string, { left: number, top: number }> | null | undefined,
-  ] | []>([])
+    ('navigate' | 'push')?,
+    (HistoryLocation)?,
+    (Record<string, any> | null)?,
+    (Record<string, { left: number, top: number }>)?,
+  ]>([])
   private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
 
@@ -223,7 +223,6 @@ export class ClientHistoryState implements HistoryState {
     return this._page
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get data(): Record<string, any> | undefined {
     const item = this._items[this._page]
     return (item && item[2]) || undefined
@@ -239,43 +238,27 @@ export class ClientHistoryState implements HistoryState {
     }
 
     const item = this._items[page]
-    const result: HistoryItem = {
-      location: (item && item[1]) || {},
-      data: (item && item[2]) || undefined,
-    }
-    if (this.options.overrideDefaultScrollBehavior) {
-      result.scrollPositions = (item && item[3]) || {}
-    }
-    return result
+    return new HistoryItemImpl(item)
   }
 
   getItems(): Array<HistoryItem> {
     const items = []
     for (let i = 0; i < this._items.length; i++) {
       const item = this._items[i]
-      const result: HistoryItem = {
-        location: (item && item[1]) || {},
-        data: (item && item[2]) || undefined,
-      }
-      if (this.options.overrideDefaultScrollBehavior) {
-        result.scrollPositions = (item && item[3]) || {}
-      }
-      items.push(result)
+      items.push(new HistoryItemImpl(item))
     }
     return items
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  /**
+   * @deprecated Use getItem(page).data = undefined
+   */
   clearItemData(page: number): Record<string, any> | undefined {
-    if (page >= this._items.length) {
-      return undefined
-    }
-
-    const item = this._items[page]
+    const item = this.getItem(page)
     if (item) {
-      const data = item[2]
-      item[2] = undefined
-      return data || undefined
+      const data = item.data
+      item.data = undefined
+      return data
     }
     return undefined
   }
@@ -284,6 +267,8 @@ export class ClientHistoryState implements HistoryState {
     if (typeof location === 'string') {
       location = { path: location }
     }
+
+    partial = partial ?? location.partial
 
     if (location.path) {
       const parsed = parseFullPath(location.path)
@@ -372,6 +357,34 @@ export class ClientHistoryState implements HistoryState {
         return `${prev1}  items[${index}] action: ${JSON.stringify(current1[0])}, route: ${JSON.stringify(current1[1])}, data: ${JSON.stringify(current1[2])}, scrollPositions: ${JSON.stringify(current1[3])}\n`
       }, '')
     )
+  }
+}
+
+class HistoryItemImpl implements HistoryItem {
+  constructor(
+    private item: [
+      ('navigate' | 'push')?,
+      (HistoryLocation)?,
+      (Record<string, any> | null)?,
+      (Record<string, { left: number, top: number }>)?,
+    ]
+  ) {
+  }
+
+  get location(): HistoryLocation {
+    return this.item[1] || {}
+  }
+
+  get data(): Record<string, any> | undefined {
+    return this.item[2] ?? undefined
+  }
+
+  set data(value: Record<string, any> | undefined) {
+    this.item[2] = value ?? null
+  }
+
+  get scrollPositions(): Record<string, { left: number, top: number }> {
+    return this.item[3] || {}
   }
 }
 
