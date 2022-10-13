@@ -205,7 +205,7 @@ if (page != null) {
 
 #### location: { path?, name?, params?, query?, hash? }
 
-A location of this history.
+A location of this saved page.
 
 #### data: object?
 
@@ -215,7 +215,7 @@ If you want to clear the backup data, you set undefined to this property.
 
 #### scrollPositions: object
 
-A saved scroll positions.
+A saved scroll positions. A root window is obtained with 'window' key, the others by the selector.
 
 ## License
 

@@ -2,7 +2,7 @@ import { App, nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
 import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw, onBackupState, HistoryItem } from './index'
-import { isObjectEqual, isObjectMatch } from './utils/functions'
+import { isObjectEqual, isObjectMatch, deepUnref } from './utils/functions'
 
 export class ClientHistoryState implements HistoryState {
   private _action = 'navigate'
@@ -228,6 +228,13 @@ export class ClientHistoryState implements HistoryState {
     return (item && item[2]) || undefined
   }
 
+  set data(value: Record<string, unknown> | undefined) {
+    const item = this._items[this._page]
+    if (item) {
+      item[2] = deepUnref(value) ?? null
+    }
+  }
+
   get length(): number {
     return this._items.length
   }
@@ -379,8 +386,8 @@ class HistoryItemImpl implements HistoryItem {
     return this.item[2] ?? undefined
   }
 
-  set data(value: Record<string, any> | undefined) {
-    this.item[2] = value ?? null
+  set data(value: Record<string, unknown> | undefined) {
+    this.item[2] = deepUnref(value) ?? null
   }
 
   get scrollPositions(): Record<string, { left: number, top: number }> {

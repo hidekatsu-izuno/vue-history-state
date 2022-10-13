@@ -1,3 +1,4 @@
+import { isRef, unref } from "vue"
 
 export function isObjectEqual(
   a: Record<string, unknown> | null | undefined,
@@ -55,4 +56,34 @@ export function isObjectMatch(
     }
     return String(aVal) === String(bVal)
   })
+}
+
+export function deepUnref(value: unknown) {
+  value = isRef(value) ? unref(value) : value
+
+  if (value != null && typeof value === 'object') {
+    const newValue: Record<string, unknown> = {}
+    for (const key in value) {
+      const unrefed = deepUnref((value as Record<string, unknown>)[key])
+      if (unrefed !== undefined) {
+        newValue[key] = unrefed
+      }
+    }
+    return newValue
+  } else if (Array.isArray(value)) {
+    const newValue = new Array(value.length)
+    for (let i = 0; i < value.length; i++) {
+      const unrefed = deepUnref(value[i])
+      if (unrefed !== undefined) {
+        newValue[i] = unrefed
+      } else {
+        newValue[i] = null
+      }
+    }
+    return newValue
+  } else if (value != null && (typeof value === 'function' || typeof value === 'symbol')) {
+    return undefined
+  } else {
+    return value
+  }
 }
