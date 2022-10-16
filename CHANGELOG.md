@@ -4,15 +4,14 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [0.9.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.8.0...v0.9.0) (2022-10-16)
 
-
 ### ⚠ BREAKING CHANGES
 
-*  clearItemData is now deprecated
+* clearItemData is now deprecated
 
 ### Features
 
-*  clearItemData is now deprecated ([857f8cb](https://github.com/hidekatsu-izuno/vue-history-state/commit/857f8cb182a7cfb51fee23e311de0e2b05e0fb9b))
-* data properties is now setable ([3d2837f](https://github.com/hidekatsu-izuno/vue-history-state/commit/3d2837f0b6d1cd0d27fabea41a381c0bb0e25ef1))
+* clearItemData is now deprecated ([857f8cb](https://github.com/hidekatsu-izuno/vue-history-state/commit/857f8cb182a7cfb51fee23e311de0e2b05e0fb9b))
+* data and getItem(page).data properties are now settable ([3d2837f](https://github.com/hidekatsu-izuno/vue-history-state/commit/3d2837f0b6d1cd0d27fabea41a381c0bb0e25ef1))
 
 ## [0.8.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.7.4...v0.8.0) (2022-10-12)
 
