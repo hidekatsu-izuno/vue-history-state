@@ -98,7 +98,11 @@ const historyState = useHistoryState()
 const data = reactive(historyState.data || { key: "value" })
 
 // fetch or restore data
-const { data } = await useAsyncData(() => historyState.data || $fetch('/api/data'), { initialCache: false })
+const { data } = useLazyFetch('/api/data', {
+    default: () => (historyState.data || { key: 'value' }),
+    immediate: !!historyState.data,
+    server: false,
+})
 
 // Backup data
 onBackupState(() => data)
