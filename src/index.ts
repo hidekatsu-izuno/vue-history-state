@@ -24,7 +24,7 @@ export declare type HistoryStatePluginOptions = {
   debug?: boolean
 }
 
-export declare type HistoryLocationRaw = {
+export declare type HistoryLocationRaw = string | {
   path?: string
   query?: Record<string, (string | number | null)[] | string | number | null>
   hash?: string

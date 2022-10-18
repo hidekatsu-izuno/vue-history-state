@@ -271,23 +271,10 @@ export class ClientHistoryState implements HistoryState {
   }
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined {
+    partial = typeof location === 'object' && location.partial
+
     if (typeof location === 'string') {
       location = { path: location }
-    }
-
-    partial = partial ?? location.partial
-
-    if (location.path) {
-      const parsed = parseFullPath(location.path)
-      if (parsed) {
-        location.path = parsed.path
-        if (!location.hash) {
-          location.hash = parsed.hash
-        }
-        if (!location.query) {
-          location.query = parsed.query
-        }
-      }
     }
 
     const action = this._items[this._page][0]
@@ -465,6 +452,17 @@ function parseQuery(qparams?: string): Record<string, string[] | string | null> 
 }
 
 function filterRoute(route: HistoryLocationRaw): HistoryLocation {
+  if (typeof route === 'string') {
+    const parsed = parseFullPath(route)
+    route = { path: parsed.path }
+    if (parsed.hash) {
+      route.hash = parsed.hash
+    }
+    if (parsed.query) {
+      route.query = parsed.query
+    }
+  }
+
   const filtered: HistoryLocation = {}
   if (route.path != null && route.path.length > 0) {
     filtered.path = route.path

@@ -54,7 +54,6 @@ export class ServerHistoryState implements HistoryState {
     return 0
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get data(): Record<string, any> | undefined {
     return undefined
   }
@@ -71,7 +70,6 @@ export class ServerHistoryState implements HistoryState {
     throw new Error('getItems is not supported on server.')
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearItemData(page: number): Record<string, any> {
     throw new Error('clearItemData is not supported on server.')
   }
