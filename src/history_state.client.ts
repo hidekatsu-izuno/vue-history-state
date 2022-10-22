@@ -146,6 +146,10 @@ export class ClientHistoryState implements HistoryState {
     })
 
     if (this.options.overrideDefaultScrollBehavior) {
+      if (window.history.scrollRestoration) {
+        window.history.scrollRestoration = "manual"
+      }
+
       router.options.scrollBehavior = async (to, from) => {
         if (to.hash) {
           return { el: to.hash }
