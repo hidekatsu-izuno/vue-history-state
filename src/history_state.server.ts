@@ -58,6 +58,10 @@ export class ServerHistoryState implements HistoryState {
     return undefined
   }
 
+  set data(value: Record<string, unknown> | undefined) {
+    throw new Error('data is not supported on server.')
+  }
+
   get length(): number {
     throw new Error('length is not supported on server.')
   }
@@ -70,11 +74,11 @@ export class ServerHistoryState implements HistoryState {
     throw new Error('getItems is not supported on server.')
   }
 
-  clearItemData(page: number): Record<string, any> {
+  clearItemData(page: number): Record<string, any> | undefined {
     throw new Error('clearItemData is not supported on server.')
   }
 
-  findBackPage(location: HistoryLocationRaw): number {
+  findBackPage(location: HistoryLocationRaw): number | undefined {
     throw new Error('findBackPosition is not supported on server.')
   }
 

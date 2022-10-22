@@ -58,6 +58,8 @@ export interface HistoryState {
 
   get data(): Record<string, any> | undefined
 
+  set data(value: Record<string, unknown> | undefined)
+
   get length(): number
 
   getItem(page: number): HistoryItem | undefined
