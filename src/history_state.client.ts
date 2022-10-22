@@ -1,11 +1,11 @@
 import { App, nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
-import { HistoryStatePluginOptions, HistoryState, HistoryLocation, HistoryLocationRaw, onBackupState, HistoryItem } from './index'
+import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw, HistoryItem, ActionType } from './history_state'
 import { isObjectEqual, isObjectMatch, deepUnref } from './utils/functions'
 
 export class ClientHistoryState implements HistoryState {
-  private _action = 'navigate'
+  private _action: ActionType = 'navigate'
   private _page = 0
   private _items = new Array<[
     ('navigate' | 'push')?,
@@ -18,7 +18,7 @@ export class ClientHistoryState implements HistoryState {
 
   constructor(
     app: App,
-    public options: HistoryStatePluginOptions,
+    public options: HistoryStateOptions,
   ) {
     const router: Router = app.config.globalProperties.$router
     if (router == null) {
@@ -145,14 +145,6 @@ export class ClientHistoryState implements HistoryState {
       }
     })
 
-    app.mixin({
-      created() {
-        if (typeof this.$options.backupData === 'function') {
-          onBackupState(this.$options.backupData)
-        }
-      }
-    })
-
     if (this.options.overrideDefaultScrollBehavior) {
       router.options.scrollBehavior = async (to, from) => {
         if (to.hash) {
@@ -215,7 +207,7 @@ export class ClientHistoryState implements HistoryState {
     }
   }
 
-  get action(): string {
+  get action(): ActionType {
     return this._action
   }
 

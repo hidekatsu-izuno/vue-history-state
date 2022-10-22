@@ -1,14 +1,14 @@
-import { App, useSSRContext } from 'vue';
-import { Router } from 'vue-router';
-import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStatePluginOptions } from './index'
+import { App, useSSRContext } from 'vue'
+import { Router } from 'vue-router'
+import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStateOptions, ActionType } from './history_state'
 
 export class ServerHistoryState implements HistoryState {
-  private _action = 'navigate'
+  private _action: ActionType = 'navigate'
   private _initialized = false
 
   constructor(
     app: App,
-    public options: HistoryStatePluginOptions
+    public options: HistoryStateOptions
   ) {
     const router: Router = app.config.globalProperties.$router
     if (router == null) {
@@ -46,7 +46,7 @@ export class ServerHistoryState implements HistoryState {
     })
   }
 
-  get action(): string {
+  get action(): ActionType {
     return this._action;
   }
 
