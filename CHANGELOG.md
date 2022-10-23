@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.9.1](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.9.0...v0.9.1) (2022-10-23)
 
-
 ### Bug Fixes
 
 * Add a code to work around tha firefox bug about unload ([862b977](https://github.com/hidekatsu-izuno/vue-history-state/commit/862b977ab5bfe9bc4436124c755087f2d1fd15c0))
