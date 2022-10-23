@@ -1,9 +1,9 @@
 import { App, useSSRContext } from 'vue'
 import { Router } from 'vue-router'
-import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStateOptions, ActionType } from './history_state'
+import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStateOptions, NavigationType } from './history_state'
 
 export class ServerHistoryState implements HistoryState {
-  private _action: ActionType = 'navigate'
+  private _action: NavigationType = 'navigate'
   private _initialized = false
 
   constructor(
@@ -46,7 +46,7 @@ export class ServerHistoryState implements HistoryState {
     })
   }
 
-  get action(): ActionType {
+  get action(): NavigationType {
     return this._action;
   }
 

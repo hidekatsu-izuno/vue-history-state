@@ -6,7 +6,7 @@ export declare type HistoryStateOptions = {
   debug?: boolean
 }
 
-export declare type ActionType = "navigate" | "push" | "reload" | "back" | "forward"
+export declare type NavigationType = "navigate" | "push" | "reload" | "back" | "forward"
 
 export declare type HistoryLocationRaw = string | {
   path?: string
@@ -36,7 +36,7 @@ export interface HistoryItem {
 }
 
 export interface HistoryState {
-  get action(): ActionType
+  get action(): NavigationType
 
   get page(): number
 

@@ -1,11 +1,11 @@
 import { App, nextTick } from 'vue'
 import { Router } from 'vue-router'
 import LZString from 'lz-string'
-import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw, HistoryItem, ActionType } from './history_state'
+import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw, HistoryItem, NavigationType } from './history_state'
 import { isObjectEqual, isObjectMatch, deepUnref } from './utils/functions'
 
 export class ClientHistoryState implements HistoryState {
-  private _action: ActionType = 'navigate'
+  private _action: NavigationType = 'navigate'
   private _page = 0
   private _items = new Array<[
     ('navigate' | 'push')?,
@@ -212,7 +212,7 @@ export class ClientHistoryState implements HistoryState {
     }
   }
 
-  get action(): ActionType {
+  get action(): NavigationType {
     return this._action
   }
 
