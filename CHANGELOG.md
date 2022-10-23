@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.9.0...v0.10.0) (2022-10-23)
+
+
+### Bug Fixes
+
+* Add a code to work around tha firefox bug about unload ([862b977](https://github.com/hidekatsu-izuno/vue-history-state/commit/862b977ab5bfe9bc4436124c755087f2d1fd15c0))
+* Fix a HistoryLocationRaw type problem ([3a38f2e](https://github.com/hidekatsu-izuno/vue-history-state/commit/3a38f2e0efaab855e6bd570f767da36c3bce4882))
+* type mismatched ([4be5039](https://github.com/hidekatsu-izuno/vue-history-state/commit/4be50398864f60713ccb4b1d17e9633049f50d20))
+
 ## [0.9.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.8.0...v0.9.0) (2022-10-16)
 
 ### ⚠ BREAKING CHANGES
