@@ -44,6 +44,12 @@ export interface HistoryState {
 
   set data(value: Record<string, unknown> | undefined)
 
+  get info(): any | undefined
+
+  get canGoBack(): boolean
+
+  get canGoForward(): boolean
+
   get length(): number
 
   getItem(page: number): HistoryItem | undefined
@@ -53,4 +59,14 @@ export interface HistoryState {
   clearItemData(page: number): Record<string, any> | undefined
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
+
+  push(url: string, info?: any): void
+
+  reload(info?: any): void
+
+  back(info?: any): void
+
+  forward(info?: any): void
+
+  goToPage(page: number, info?: any): void
 }

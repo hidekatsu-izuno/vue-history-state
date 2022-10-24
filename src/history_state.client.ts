@@ -5,6 +5,7 @@ import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw,
 import { isObjectEqual, isObjectMatch, deepUnref } from './utils/functions'
 
 export class ClientHistoryState implements HistoryState {
+  private _app: App
   private _action: NavigationType = 'navigate'
   private _page = 0
   private _items = new Array<[
@@ -15,11 +16,15 @@ export class ClientHistoryState implements HistoryState {
   ]>([])
   private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
+  private _nextInfo?: NextInfo
+  private _info?: any
 
   constructor(
     app: App,
     public options: HistoryStateOptions,
   ) {
+    this._app = app
+
     const router: Router = app.config.globalProperties.$router
     if (router == null) {
       throw new Error("Vue Router is needed.")
@@ -103,6 +108,7 @@ export class ClientHistoryState implements HistoryState {
 
     router.afterEach((to, from, failure) => {
       this._route = filterRoute(to)
+      this._info = undefined
 
       const page = window.history.state && window.history.state.page
       if (page != null && page !== this._page) {
@@ -133,6 +139,11 @@ export class ClientHistoryState implements HistoryState {
       } else if (!this._items[this._page]) {
         this._items[this._page] = []
       }
+
+      if (this._nextInfo && this._nextInfo.page === this._page && this._nextInfo.action === this._action) {
+        this._info = this._nextInfo.info
+      }
+      this._nextInfo = undefined
 
       if (page == null) {
         window.history.replaceState({
@@ -232,6 +243,18 @@ export class ClientHistoryState implements HistoryState {
     }
   }
 
+  get info(): any | undefined {
+    return this._info
+  }
+
+  get canGoBack() {
+    return this._page - 1 >= 0
+  }
+
+  get canGoForward() {
+    return this._page + 1 < this._items.length
+  }
+
   get length(): number {
     return this._items.length
   }
@@ -300,6 +323,84 @@ export class ClientHistoryState implements HistoryState {
     return undefined
   }
 
+  findForwardPage(location: HistoryLocationRaw): number | undefined {
+    const partial = typeof location === 'object' && location.partial
+
+    const normalized = filterRoute(location)
+    for (let p = this._page + 1; p < this._items.length; p++) {
+      const forwardType = this._items[p][0]
+      if (forwardType === 'navigate') {
+        break
+      }
+
+      const fowardLocation = this._items[p][1]
+      if (fowardLocation) {
+        if (partial) {
+          if (isMatchedRoute(fowardLocation, normalized)) {
+            return p
+          }
+        } else {
+          if (isSameRoute(fowardLocation, normalized)) {
+            return p
+          }
+        }
+      }
+    }
+    return undefined
+  }
+
+
+  push(url: string, info?: any) {
+    if (info !== undefined) {
+      this._setNextInfo('push', info)
+    }
+
+    const router: Router = this._app.config.globalProperties.$router
+    if (router == null) {
+      throw new Error("Vue Router is needed.")
+    }
+    router.push(url)
+  }
+
+  reload(info?: any) {
+    if (info !== undefined) {
+      this._setNextInfo('reload', info)
+    }
+    window.location.reload()
+  }
+
+  back(info?: any) {
+    if (info !== undefined) {
+      this._setNextInfo('back', info)
+    }
+    window.history.back()
+  }
+
+  forward(info?: any)  {
+    if (info !== undefined) {
+      this._setNextInfo('forward', info)
+    }
+    window.history.forward()
+  }
+
+  goToPage(page: number, info?: any) {
+    if (!this._canGoToPage(page)) {
+      throw new RangeError(`The page is out of range: ${page}`)
+    }
+
+    if (page < this._page) {
+      if (info !== undefined) {
+        this._setNextInfo('back', info)
+      }
+      window.history.go(page - this.page)
+    } else if (page > this.page) {
+      if (info !== undefined) {
+        this._setNextInfo('forward', info)
+      }
+      window.history.go(page - this.page)
+    }
+  }
+
   private _save() {
     if (this._action === 'navigate') {
       this._items[this._page][0] = 'navigate'
@@ -340,6 +441,45 @@ export class ClientHistoryState implements HistoryState {
         this._items[page] = []
       }
     }
+  }
+
+  private _canGoToPage(page: number) {
+    if (page < 0 && page >= this._items.length) {
+      return false
+    }
+
+    if (page < this._page) {
+      for (let p = this._page; p >= page; p--) {
+        const type = this._items[p][0]
+        if (type === 'navigate') {
+          return false
+        }
+      }
+    } else if (page > this._page) {
+      for (let p = this._page + 1; p < page; p++) {
+        const type = this._items[p][0]
+        if (type === 'navigate') {
+          return false
+        }
+      }
+    }
+
+    return true
+  }
+
+  private _setNextInfo(action: string, info: any) {
+    if (info === undefined) {
+      return
+    }
+
+    let page = this._page
+    if (action === 'push' || action === 'forward') {
+      page = page + 1
+    } else if (action === 'back') {
+      page = page - 1
+    }
+
+    this._nextInfo = { page, action, info }
   }
 
   private _debug(marker: string) {
@@ -395,6 +535,12 @@ function getNavigationType() {
     }
   }
   return 'navigate'
+}
+
+declare type NextInfo = {
+  page: number,
+  action: string,
+  info: any,
 }
 
 function parseFullPath(path: string) {
