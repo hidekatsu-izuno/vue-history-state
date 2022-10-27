@@ -50,6 +50,10 @@ export class ServerHistoryState implements HistoryState {
     return this._action;
   }
 
+  get visited(): boolean {
+    return this._action === 'reload'
+  }
+
   get page(): number {
     return 0
   }

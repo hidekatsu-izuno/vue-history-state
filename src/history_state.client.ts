@@ -227,6 +227,12 @@ export class ClientHistoryState implements HistoryState {
     return this._action
   }
 
+  get visited(): boolean {
+    return this._action === 'back' ||
+      this._action === 'forward' ||
+      this._action === 'reload'
+  }
+
   get page(): number {
     return this._page
   }

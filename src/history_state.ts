@@ -38,6 +38,8 @@ export interface HistoryItem {
 export interface HistoryState {
   get action(): NavigationType
 
+  get visited(): boolean
+
   get page(): number
 
   get data(): Record<string, any> | undefined

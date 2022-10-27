@@ -143,6 +143,9 @@ By default this method returns basically 'navigate' on server.
 But many browsers send cache-control='maxage=0' when reloading.
 It heuristically returns 'reload' then.
 
+#### visited
+
+If the action is back, forward or reload, this property returns true.
 #### page: number
 
 A current page number (an integer beginning with 0).
