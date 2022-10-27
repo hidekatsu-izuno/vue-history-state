@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.11.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.10.0...v0.11.0) (2022-10-27)
+
+
+### Features
+
+* Add visited property ([947490c](https://github.com/hidekatsu-izuno/vue-history-state/commit/947490c7bd7b3b234621cf91a2924b4c0cf87966))
+
 ## [0.10.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.9.1...v0.10.0) (2022-10-24)
 
 ### Features
