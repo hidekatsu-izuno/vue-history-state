@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.12.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.12.0-alpha.0...v0.12.0) (2023-02-25)
+
+
+### Bug Fixes
+
+* resupport options api. ([adc3037](https://github.com/hidekatsu-izuno/vue-history-state/commit/adc30378322503f25e67441315342e110e4feff2))
+
 ## [0.12.0-alpha.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.11.0...v0.12.0-alpha.0) (2023-02-25)
 
 ## [0.11.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.10.0...v0.11.0) (2022-10-27)
