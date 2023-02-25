@@ -1,9 +1,9 @@
-import { App, useSSRContext } from 'vue'
-import { Router } from 'vue-router'
-import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStateOptions, NavigationType } from './history_state'
+import { App, useSSRContext } from "vue"
+import { Router } from "vue-router"
+import { HistoryState, HistoryItem, HistoryLocationRaw, HistoryStateOptions, NavigationType } from "./history_state.js"
 
 export class ServerHistoryState implements HistoryState {
-  private _action: NavigationType = 'navigate'
+  private _action: NavigationType = "navigate"
   private _initialized = false
 
   constructor(
@@ -19,7 +19,7 @@ export class ServerHistoryState implements HistoryState {
       this._initialized = false
 
       if (this.options.debug) {
-        this._debug('afterEach')
+        this._debug("afterEach")
       }
     })
 
@@ -28,18 +28,18 @@ export class ServerHistoryState implements HistoryState {
         if (!this._initialized) {
           const ssrContext = useSSRContext()
           if (!ssrContext) {
-            throw new Error('SSRContext is not found')
+            throw new Error("SSRContext is not found")
           }
           if (ssrContext.req && ssrContext.req.headers) {
-            const cacheControl = ssrContext.req.headers['cache-control'] || ssrContext.req.headers['pragma'];
+            const cacheControl = ssrContext.req.headers["cache-control"] || ssrContext.req.headers["pragma"];
             if (/^(no-cache|max-age=0)$/.test(cacheControl)) {
-              this._action = 'reload'
+              this._action = "reload"
             }
           }
           this._initialized = true
 
           if (this.options.debug) {
-            this._debug('beforeCreate')
+            this._debug("beforeCreate")
           }
         }
       },
@@ -51,7 +51,7 @@ export class ServerHistoryState implements HistoryState {
   }
 
   get visited(): boolean {
-    return this._action === 'reload'
+    return this._action === "reload"
   }
 
   get page(): number {
@@ -63,7 +63,7 @@ export class ServerHistoryState implements HistoryState {
   }
 
   set data(value: Record<string, unknown> | undefined) {
-    throw new Error('data is not supported on server.')
+    throw new Error("data is not supported on server.")
   }
 
   get info(): any | undefined {
@@ -71,51 +71,51 @@ export class ServerHistoryState implements HistoryState {
   }
 
   get canGoBack(): boolean {
-    throw new Error('canGoBack is not supported on server.')
+    throw new Error("canGoBack is not supported on server.")
   }
 
   get canGoForward(): boolean {
-    throw new Error('canGoForward is not supported on server.')
+    throw new Error("canGoForward is not supported on server.")
   }
 
   get length(): number {
-    throw new Error('length is not supported on server.')
+    throw new Error("length is not supported on server.")
   }
 
   getItem(page: number): HistoryItem | undefined {
-    throw new Error('getItem is not supported on server.')
+    throw new Error("getItem is not supported on server.")
   }
 
   getItems(): Array<HistoryItem> {
-    throw new Error('getItems is not supported on server.')
+    throw new Error("getItems is not supported on server.")
   }
 
   clearItemData(page: number): Record<string, any> | undefined {
-    throw new Error('clearItemData is not supported on server.')
+    throw new Error("clearItemData is not supported on server.")
   }
 
   findBackPage(location: HistoryLocationRaw): number | undefined {
-    throw new Error('findBackPosition is not supported on server.')
+    throw new Error("findBackPosition is not supported on server.")
   }
 
   push(url: string, info?: any): void {
-    throw new Error('push is not supported on server.')
+    throw new Error("push is not supported on server.")
   }
 
   reload(info?: any): void {
-    throw new Error('reload is not supported on server.')
+    throw new Error("reload is not supported on server.")
   }
 
   back(info?: any): void {
-    throw new Error('back is not supported on server.')
+    throw new Error("back is not supported on server.")
   }
 
   forward(info?: any): void {
-    throw new Error('forward is not supported on server.')
+    throw new Error("forward is not supported on server.")
   }
 
   goToPage(page: number, info?: any): void {
-    throw new Error('goToPage is not supported on server.')
+    throw new Error("goToPage is not supported on server.")
   }
 
   private _debug(marker: string) {

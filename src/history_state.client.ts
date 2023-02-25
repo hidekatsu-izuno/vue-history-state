@@ -1,15 +1,15 @@
-import { App, nextTick } from 'vue'
-import { Router } from 'vue-router'
-import LZString from 'lz-string'
-import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw, HistoryItem, NavigationType } from './history_state'
-import { isObjectEqual, isObjectMatch, deepUnref } from './utils/functions'
+import { App, nextTick } from "vue"
+import { Router } from "vue-router"
+import LZString from "lz-string"
+import { HistoryStateOptions, HistoryState, HistoryLocation, HistoryLocationRaw, HistoryItem, NavigationType } from "./history_state.js"
+import { isObjectEqual, isObjectMatch, deepUnref } from "./utils/functions.js"
 
 export class ClientHistoryState implements HistoryState {
   private _app: App
-  private _action: NavigationType = 'navigate'
+  private _action: NavigationType = "navigate"
   private _page = 0
   private _items = new Array<[
-    ('navigate' | 'push')?,
+    ("navigate" | "push")?,
     (HistoryLocation)?,
     (Record<string, any> | null)?,
     (Record<string, { left: number, top: number }>)?,
@@ -39,46 +39,46 @@ export class ClientHistoryState implements HistoryState {
     try {
       const navType = getNavigationType()
       if (window.sessionStorage) {
-        const backupText = sessionStorage.getItem('vue-history-state')
+        const backupText = sessionStorage.getItem("vue-history-state")
         if (backupText) {
-          sessionStorage.removeItem('vue-history-state')
+          sessionStorage.removeItem("vue-history-state")
           try {
-            const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || '[]')
+            const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || "[]")
             this._page = backupState[0]
             this._items = backupState[1]
-            if (navType === 'navigate') {
-              this._action = 'navigate'
+            if (navType === "navigate") {
+              this._action = "navigate"
               this._page = this._page + 1
             } else {
-              this._action = 'reload'
+              this._action = "reload"
             }
           } catch (error) {
-            console.error('Failed to restore from sessionStorage.', error)
+            console.error("Failed to restore from sessionStorage.", error)
           }
-        } else if (navType === 'reload') {
-          console.error('The saved history state is not found.')
+        } else if (navType === "reload") {
+          console.error("The saved history state is not found.")
         }
 
-        const isMozilla = '-moz-user-select' in document.documentElement.style
-        window.addEventListener(isMozilla ? 'beforeunload' : 'unload', event => {
+        const isMozilla = "-moz-user-select" in document.documentElement.style
+        window.addEventListener(isMozilla ? "beforeunload" : "unload", event => {
           this._save()
 
           try {
-            sessionStorage.setItem('vue-history-state', LZString.compressToUTF16(JSON.stringify([
+            sessionStorage.setItem("vue-history-state", LZString.compressToUTF16(JSON.stringify([
               this._page,
               this._items
             ])))
           } catch (error) {
-            console.error('Failed to save to sessionStorage.', error)
+            console.error("Failed to save to sessionStorage.", error)
           }
 
           if (this.options.debug) {
-            this._debug('unload')
+            this._debug("unload")
           }
         })
       }
     } catch (error) {
-      console.error('Failed to access to sessionStorage.', error)
+      console.error("Failed to access to sessionStorage.", error)
     }
 
     router.beforeResolve(to => {
@@ -88,7 +88,7 @@ export class ClientHistoryState implements HistoryState {
       }
 
       if (this.options.debug) {
-        this._debug('beforeResolve')
+        this._debug("beforeResolve")
       }
     })
 
@@ -96,11 +96,11 @@ export class ClientHistoryState implements HistoryState {
     router.options.history.push = (to, data) => {
       const ret = orgPush.call(router.options.history, to, data)
 
-      this._action = 'push'
+      this._action = "push"
       this._page++
 
       if (this.options.debug) {
-        this._debug('push')
+        this._debug("push")
       }
 
       return ret
@@ -113,16 +113,16 @@ export class ClientHistoryState implements HistoryState {
       const page = window.history.state && window.history.state.page
       if (page != null && page !== this._page) {
         if (page < this._page) {
-          this._action = 'back'
+          this._action = "back"
         } else if (page > this._page) {
-          this._action = 'forward'
+          this._action = "forward"
         }
         this._page = page
-      } else if (this._action === 'reload' && getNavigationType() === 'back_forward') {
+      } else if (this._action === "reload" && getNavigationType() === "back_forward") {
         if (page >= this._page) {
-          this._action = 'forward'
+          this._action = "forward"
         } else {
-          this._action = 'back'
+          this._action = "back"
         }
         if (page != null) {
           this._page = page
@@ -133,7 +133,7 @@ export class ClientHistoryState implements HistoryState {
         this._page = this._items.length
       }
 
-      if (this._action === 'navigate' || this._action === 'push') {
+      if (this._action === "navigate" || this._action === "push") {
         this._items.length = this._page + 1
         this._items[this._page] = []
       } else if (!this._items[this._page]) {
@@ -149,11 +149,11 @@ export class ClientHistoryState implements HistoryState {
         window.history.replaceState({
           ...window.history.state,
           page: this._page
-        }, '')
+        }, "")
       }
 
       if (this.options.debug) {
-        this._debug('afterEach')
+        this._debug("afterEach")
       }
     })
 
@@ -169,7 +169,7 @@ export class ClientHistoryState implements HistoryState {
 
         let positions: Record<string, { left: number, top: number }> | null | undefined = undefined
         if (
-          (this._action == 'back' || this._action == 'forward' || this._action == 'reload')
+          (this._action == "back" || this._action == "forward" || this._action == "reload")
           && this._items[this._page]
           && (positions = this._items[this._page][3])
         ) {
@@ -228,9 +228,9 @@ export class ClientHistoryState implements HistoryState {
   }
 
   get visited(): boolean {
-    return this._action === 'back' ||
-      this._action === 'forward' ||
-      this._action === 'reload'
+    return this._action === "back" ||
+      this._action === "forward" ||
+      this._action === "reload"
   }
 
   get page(): number {
@@ -297,14 +297,14 @@ export class ClientHistoryState implements HistoryState {
   }
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined {
-    partial = typeof location === 'object' && location.partial
+    partial = typeof location === "object" && location.partial
 
-    if (typeof location === 'string') {
+    if (typeof location === "string") {
       location = { path: location }
     }
 
     const action = this._items[this._page][0]
-    if (action !== 'navigate') {
+    if (action !== "navigate") {
       const normalized = filterRoute(location)
       for (let page = this._page - 1; page >= 0; page--) {
         const backLocation = this._items[page][1]
@@ -321,7 +321,7 @@ export class ClientHistoryState implements HistoryState {
         }
 
         const backAction = this._items[page][0]
-        if (backAction === 'navigate') {
+        if (backAction === "navigate") {
           break
         }
       }
@@ -330,12 +330,12 @@ export class ClientHistoryState implements HistoryState {
   }
 
   findForwardPage(location: HistoryLocationRaw): number | undefined {
-    const partial = typeof location === 'object' && location.partial
+    const partial = typeof location === "object" && location.partial
 
     const normalized = filterRoute(location)
     for (let p = this._page + 1; p < this._items.length; p++) {
       const forwardType = this._items[p][0]
-      if (forwardType === 'navigate') {
+      if (forwardType === "navigate") {
         break
       }
 
@@ -358,7 +358,7 @@ export class ClientHistoryState implements HistoryState {
 
   push(url: string, info?: any) {
     if (info !== undefined) {
-      this._setNextInfo('push', info)
+      this._setNextInfo("push", info)
     }
 
     const router: Router = this._app.config.globalProperties.$router
@@ -370,21 +370,21 @@ export class ClientHistoryState implements HistoryState {
 
   reload(info?: any) {
     if (info !== undefined) {
-      this._setNextInfo('reload', info)
+      this._setNextInfo("reload", info)
     }
     window.location.reload()
   }
 
   back(info?: any) {
     if (info !== undefined) {
-      this._setNextInfo('back', info)
+      this._setNextInfo("back", info)
     }
     window.history.back()
   }
 
   forward(info?: any)  {
     if (info !== undefined) {
-      this._setNextInfo('forward', info)
+      this._setNextInfo("forward", info)
     }
     window.history.forward()
   }
@@ -396,22 +396,22 @@ export class ClientHistoryState implements HistoryState {
 
     if (page < this._page) {
       if (info !== undefined) {
-        this._setNextInfo('back', info)
+        this._setNextInfo("back", info)
       }
       window.history.go(page - this.page)
     } else if (page > this.page) {
       if (info !== undefined) {
-        this._setNextInfo('forward', info)
+        this._setNextInfo("forward", info)
       }
       window.history.go(page - this.page)
     }
   }
 
   private _save() {
-    if (this._action === 'navigate') {
-      this._items[this._page][0] = 'navigate'
-    } else if (this._action === 'push') {
-      this._items[this._page][0] = 'push'
+    if (this._action === "navigate") {
+      this._items[this._page][0] = "navigate"
+    } else if (this._action === "push") {
+      this._items[this._page][0] = "push"
     }
 
     this._items[this._page][1] = this._route
@@ -437,7 +437,7 @@ export class ClientHistoryState implements HistoryState {
           }
         }
       }
-      positions['window'] = { left: window.pageXOffset, top: window.pageYOffset }
+      positions["window"] = { left: window.pageXOffset, top: window.pageYOffset }
       this._items[this._page][3] = positions
     }
 
@@ -457,14 +457,14 @@ export class ClientHistoryState implements HistoryState {
     if (page < this._page) {
       for (let p = this._page; p >= page; p--) {
         const type = this._items[p][0]
-        if (type === 'navigate') {
+        if (type === "navigate") {
           return false
         }
       }
     } else if (page > this._page) {
       for (let p = this._page + 1; p < page; p++) {
         const type = this._items[p][0]
-        if (type === 'navigate') {
+        if (type === "navigate") {
           return false
         }
       }
@@ -479,9 +479,9 @@ export class ClientHistoryState implements HistoryState {
     }
 
     let page = this._page
-    if (action === 'push' || action === 'forward') {
+    if (action === "push" || action === "forward") {
       page = page + 1
-    } else if (action === 'back') {
+    } else if (action === "back") {
       page = page - 1
     }
 
@@ -492,7 +492,7 @@ export class ClientHistoryState implements HistoryState {
     console.log(`[${marker}] page: ${this._page}, action: ${JSON.stringify(this._action)}, route: ${JSON.stringify(this._route)}\n` +
       this._items.reduce((prev1: unknown, current1: Array<unknown>, index) => {
         return `${prev1}  items[${index}] action: ${JSON.stringify(current1[0])}, route: ${JSON.stringify(current1[1])}, data: ${JSON.stringify(current1[2])}, scrollPositions: ${JSON.stringify(current1[3])}\n`
-      }, '')
+      }, "")
     )
   }
 }
@@ -500,7 +500,7 @@ export class ClientHistoryState implements HistoryState {
 class HistoryItemImpl implements HistoryItem {
   constructor(
     private item: [
-      ('navigate' | 'push')?,
+      ("navigate" | "push")?,
       (HistoryLocation)?,
       (Record<string, any> | null)?,
       (Record<string, { left: number, top: number }>)?,
@@ -528,19 +528,19 @@ class HistoryItemImpl implements HistoryItem {
 function getNavigationType() {
   if (window.performance) {
     const navi = window.performance.getEntriesByType &&
-      window.performance.getEntriesByType('navigation')
+      window.performance.getEntriesByType("navigation")
     if (navi && navi.length) {
       return (navi[0] as PerformanceNavigationTiming).type
     } else if (window.performance.navigation) {
       switch (window.performance.navigation.type) {
-        case 0: return 'navigate'
-        case 1: return 'reload'
-        case 2: return 'back_forward'
-        default: return 'prerender'
+        case 0: return "navigate"
+        case 1: return "reload"
+        case 2: return "back_forward"
+        default: return "prerender"
       }
     }
   }
-  return 'navigate'
+  return "navigate"
 }
 
 declare type NextInfo = {
@@ -553,13 +553,13 @@ function parseFullPath(path: string) {
   let hash = undefined
   let query = undefined
 
-  const hashIndex = path.indexOf('#')
+  const hashIndex = path.indexOf("#")
   if (hashIndex >= 0) {
     hash = path.slice(hashIndex)
     path = path.slice(0, hashIndex)
   }
 
-  const qparamsIndex = path.indexOf('?')
+  const qparamsIndex = path.indexOf("?")
   if (qparamsIndex >= 0) {
     query = parseQuery(path.slice(qparamsIndex + 1))
     path = path.slice(0, qparamsIndex)
@@ -573,16 +573,16 @@ function parseFullPath(path: string) {
 }
 
 function parseQuery(qparams?: string): Record<string, string[] | string | null> | undefined {
-  qparams = qparams && qparams.replace(/^(\?|#|&)/, '')
+  qparams = qparams && qparams.replace(/^(\?|#|&)/, "")
   if (!qparams) {
     return undefined
   }
 
   const result: Record<string, string[] | string | null> = {}
-  qparams.split('&').forEach(qparam => {
-    const qparamIndex = qparam.indexOf('=')
+  qparams.split("&").forEach(qparam => {
+    const qparamIndex = qparam.indexOf("=")
     let qname = qparam
-    let qvalue = ''
+    let qvalue = ""
     if (qparamIndex >= 0) {
       qname = decodeURIComponent(qparam.slice(0, qparamIndex))
       qvalue = decodeURIComponent(qparam.slice(qparamIndex + 1))
@@ -601,7 +601,7 @@ function parseQuery(qparams?: string): Record<string, string[] | string | null> 
 }
 
 function filterRoute(route: HistoryLocationRaw): HistoryLocation {
-  if (typeof route === 'string') {
+  if (typeof route === "string") {
     const parsed = parseFullPath(route)
     route = { path: parsed.path }
     if (parsed.hash) {
@@ -617,7 +617,7 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
     filtered.path = route.path
   }
 
-  if (route.name != null && (typeof route.name === 'symbol' || route.name.length > 0)) {
+  if (route.name != null && (typeof route.name === "symbol" || route.name.length > 0)) {
     filtered.name = route.name
     if (route.params) {
       const params: Record<string, string | null | (string | null)[]> = {}
@@ -652,14 +652,14 @@ function filterRoute(route: HistoryLocationRaw): HistoryLocation {
         for (let i = 0; i < param.length; i++) {
           const nparam = param[i]
           if (nparam === null) {
-            nparams.push('')
+            nparams.push("")
           } else if (nparam != undefined) {
             nparams.push(nparam.toString())
           }
         }
         query[key] = nparams
       } else if (param === null) {
-        query[key] = ''
+        query[key] = ""
       } else if (param != undefined) {
         query[key] = param.toString()
       }
@@ -684,7 +684,7 @@ function isMatchedRoute(a: HistoryLocation, b?: HistoryLocation) {
     return false
   } else if (a.path && b.path) {
     return (
-      a.path.replace(trailingSlashRE, '') === b.path.replace(trailingSlashRE, '') &&
+      a.path.replace(trailingSlashRE, "") === b.path.replace(trailingSlashRE, "") &&
       (b.hash == null || a.hash === b.hash) &&
       isObjectMatch(a.query, b.query)
     )
@@ -704,7 +704,7 @@ function isSameRoute(a: HistoryLocation, b?: HistoryLocation) {
     return false
   } else if (a.path && b.path) {
     return (
-      a.path.replace(trailingSlashRE, '') === b.path.replace(trailingSlashRE, '') &&
+      a.path.replace(trailingSlashRE, "") === b.path.replace(trailingSlashRE, "") &&
       a.hash === b.hash &&
       isObjectEqual(a.query, b.query)
     )

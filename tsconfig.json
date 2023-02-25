@@ -1,16 +1,19 @@
 {
+  "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "target": "ES2020",
-    "importHelpers": true,
+    "moduleResolution": "NodeNext",
+    "newLine": "LF",
+    "outDir": "./module/",
+    "target": "ES2018",
     "sourceMap": true,
-    "outDir": "./lib",
-
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "./types"
+    "paths": {
+      "@/*": ["./src/*"],
+    }
   },
-  "extends": "@tsconfig/recommended/tsconfig.json",
-  "include": ["./src"]
+  "include": [
+    "./src/**/*"
+  ]
 }
