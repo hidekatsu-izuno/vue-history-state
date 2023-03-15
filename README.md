@@ -47,13 +47,14 @@ app.use(HistoryStatePlugin, {
 
 ### Nuxt 3
 
-```javascript
-import HistoryStatePlugin from 'vue-history-state'
-
-export default defineNuxtPlugin(app => {
-  app.vueApp.use(HistoryStatePlugin, {
+```javascript:nuxt.config.ts
+export default defineNuxtConfig({
+  modules: [
+    "vue-history-state/nuxt"
+  ],
+  historyState: {
     /* optional options */
-  })
+  }
 })
 ```
 
