@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.13.0-alpha.2](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.13.0-alpha.1...v0.13.0-alpha.2) (2023-03-16)
+
 ## [0.13.0-alpha.1](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.13.0-alpha.0...v0.13.0-alpha.1) (2023-03-16)
 
 ## [0.13.0-alpha.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.12.0...v0.13.0-alpha.0) (2023-03-15)
