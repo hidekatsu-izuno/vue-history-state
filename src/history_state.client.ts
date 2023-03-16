@@ -30,12 +30,6 @@ export class ClientHistoryState implements HistoryState {
       throw new Error("Vue Router is needed.")
     }
 
-    if (router && router.options.scrollBehavior) {
-      options.overrideDefaultScrollBehavior = false;
-    } else if (options.overrideDefaultScrollBehavior == null) {
-      options.overrideDefaultScrollBehavior = true;
-    }
-
     try {
       const navType = getNavigationType()
       if (window.sessionStorage) {
@@ -157,28 +151,25 @@ export class ClientHistoryState implements HistoryState {
       }
     })
 
-    if (this.options.overrideDefaultScrollBehavior) {
+    if (this.options.overrideDefaultScrollBehavior !== false) {
       if (window.history.scrollRestoration) {
         window.history.scrollRestoration = "manual"
       }
 
-      router.options.scrollBehavior = async (to, from) => {
+      const backupBehavior = router.options.scrollBehavior
+      router.options.scrollBehavior = async (from, to, savedPosition) => {
         if (to.hash) {
-          return { el: to.hash }
+          return { el: to.hash, top: getHashElementScrollMarginTop(to.hash) }
         }
 
-        let positions: Record<string, { left: number, top: number }> | null | undefined = undefined
-        if (
-          (this._action == "back" || this._action == "forward" || this._action == "reload")
-          && this._items[this._page]
-          && (positions = this._items[this._page][3])
-        ) {
+        if (backupBehavior) {
+          await backupBehavior(from, to, savedPosition)
+        }
 
+        const positions = this._items[this._page]?.[3]
+        if (positions && (this._action == "back" || this._action == "forward" || this._action == "reload")) {
           if (this.options.scrollingElements) {
-            let scrollingElements = this.options.scrollingElements
-            if (!Array.isArray(scrollingElements)) {
-              scrollingElements = [scrollingElements]
-            }
+            const selectors = this.options.scrollingElements
             nextTick(async () => {
               for (let i = 0; i < 10; i++) {
                 if (i > 0) {
@@ -186,7 +177,7 @@ export class ClientHistoryState implements HistoryState {
                   await new Promise(resolve => setTimeout(resolve, 10));
                 }
 
-                for (const selector of scrollingElements) {
+                for (const selector of (Array.isArray(selectors) ? selectors : [ selectors ])) {
                   const elem = document.querySelector(selector)
                   const position = positions && positions[selector]
                   if (elem && position) {
@@ -197,12 +188,13 @@ export class ClientHistoryState implements HistoryState {
             })
           }
 
-          if (positions.window) {
-            return positions.window
+          if (savedPosition) {
+            return {
+              left: savedPosition.left,
+              top: savedPosition.top,
+            }
           }
         }
-
-        return { left: 0, top: 0 }
       }
     }
   }
@@ -246,6 +238,13 @@ export class ClientHistoryState implements HistoryState {
     const item = this._items[this._page]
     if (item) {
       item[2] = deepUnref(value) ?? null
+    }
+  }
+
+  get scrollPositions(): Record<string, { left: number, top: number }> | undefined {
+    const item = this._items[this._page]
+    if (item) {
+      return this.getItem(this.page)?.scrollPositions
     }
   }
 
@@ -437,7 +436,6 @@ export class ClientHistoryState implements HistoryState {
           }
         }
       }
-      positions["window"] = { left: window.pageXOffset, top: window.pageYOffset }
       this._items[this._page][3] = positions
     }
 
@@ -717,4 +715,15 @@ function isSameRoute(a: HistoryLocation, b?: HistoryLocation) {
     )
   }
   return false
+}
+
+function getHashElementScrollMarginTop(selector: string) {
+  try {
+    const elem = document.querySelector(selector);
+    if (elem) {
+      return parseFloat(getComputedStyle(elem).scrollMarginTop);
+    }
+  } catch {
+  }
+  return 0
 }

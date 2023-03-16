@@ -1,4 +1,4 @@
-import { addPluginTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { addPluginTemplate, defineNuxtModule } from "@nuxt/kit"
 
 export default defineNuxtModule({
   meta: {

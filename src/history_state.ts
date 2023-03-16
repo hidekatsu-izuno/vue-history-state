@@ -1,3 +1,12 @@
+import { RouteLocationNormalized, RouteLocationNormalizedLoaded } from "vue-router"
+
+declare type Awaitable<T> = T | Promise<T>
+
+declare type ScrollPosition = {
+  el?: string | Element
+  left?: number
+  top?: number
+}
 
 export declare type HistoryStateOptions = {
   maxHistoryLength?: number

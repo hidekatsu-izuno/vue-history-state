@@ -40,14 +40,14 @@
     },
     "./nuxt": {
       "import": {
-        "types": "./module/nuxt.d.ts",
-        "default": "./module/nuxt.js"
+        "types": "./module/nuxt/index.d.ts",
+        "default": "./module/nuxt/index.js"
       },
       "require": {
-        "types": "./lib/nuxt.d.ts",
-        "default": "./lib/nuxt.js"
+        "types": "./lib/nuxt/index.d.ts",
+        "default": "./lib/nuxt/index.js"
       },
-      "default": "./lib/nuxt.js"
+      "default": "./lib/nuxt/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -75,7 +75,7 @@
     "eslint": "^8.36.0",
     "standard-version": "^9.5.0",
     "typescript": "^4.9.5",
-    "vitest": "^0.29.2",
+    "vitest": "^0.29.3",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
