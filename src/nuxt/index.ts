@@ -1,4 +1,5 @@
 import { addPluginTemplate, defineNuxtModule } from "@nuxt/kit"
+import { defu } from 'defu'
 
 export default defineNuxtModule({
   meta: {
@@ -9,10 +10,9 @@ export default defineNuxtModule({
     },
   },
   setup(moduleOptions, nuxt) {
-    nuxt.options.runtimeConfig.historyState = {
-      ...nuxt.options.runtimeConfig.historyState || {},
+    nuxt.options.runtimeConfig.public.historyState = defu(nuxt.options.runtimeConfig.public.historyState, {
       ...moduleOptions,
-    }
+    })
 
     addPluginTemplate({
       filename: "vue-history-state/plugin.mjs",
@@ -20,7 +20,7 @@ export default defineNuxtModule({
       getContents: () => `
         import HistoryStatePlugin from 'vue-history-state'
         export default defineNuxtPlugin(app => {
-          app.vueApp.use(HistoryStatePlugin, useRuntimeConfig().historyState)
+          app.vueApp.use(HistoryStatePlugin, useRuntimeConfig().public.historyState)
         })
       `,
     }, moduleOptions)

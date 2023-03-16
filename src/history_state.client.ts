@@ -189,12 +189,11 @@ export class ClientHistoryState implements HistoryState {
           }
 
           if (savedPosition) {
-            return {
-              left: savedPosition.left,
-              top: savedPosition.top,
-            }
+            return { left: savedPosition.left, top: savedPosition.top }
           }
         }
+
+        return { left: 0, top: 0 }
       }
     }
   }
@@ -422,7 +421,7 @@ export class ClientHistoryState implements HistoryState {
       this._items[this._page][2] = backupData
     }
 
-    if (this.options.overrideDefaultScrollBehavior) {
+    if (this.options.overrideDefaultScrollBehavior !== false) {
       const positions: Record<string, { left: number, top: number }> = {}
       if (this.options.scrollingElements) {
         let scrollingElements = this.options.scrollingElements
