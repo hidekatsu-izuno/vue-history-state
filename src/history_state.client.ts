@@ -157,13 +157,13 @@ export class ClientHistoryState implements HistoryState {
       }
 
       const backupBehavior = router.options.scrollBehavior
-      router.options.scrollBehavior = async (from, to, savedPosition) => {
+      router.options.scrollBehavior = async (to, from, savedPosition) => {
         if (to.hash) {
           return { el: to.hash, top: getHashElementScrollMarginTop(to.hash) }
         }
 
         if (backupBehavior) {
-          await backupBehavior(from, to, savedPosition)
+          await backupBehavior(to, from, savedPosition)
         }
 
         const positions = this._items[this._page]?.[3]
@@ -188,8 +188,8 @@ export class ClientHistoryState implements HistoryState {
             })
           }
 
-          if (savedPosition) {
-            return { left: savedPosition.left, top: savedPosition.top }
+          if (positions.window) {
+            return positions.window
           }
         }
 
@@ -435,6 +435,7 @@ export class ClientHistoryState implements HistoryState {
           }
         }
       }
+      positions["window"] = { left: window.pageXOffset, top: window.pageYOffset }
       this._items[this._page][3] = positions
     }
 
