@@ -1,6 +1,5 @@
 import { App, Plugin, getCurrentInstance, onUnmounted } from "vue"
-import { HistoryState } from "vue-router"
-import { HistoryStateOptions } from "./history_state.js"
+import { HistoryState, HistoryStateOptions } from "./history_state.js"
 import { ClientHistoryState } from "./history_state.client.js"
 import { ServerHistoryState } from "./history_state.server.js"
 import { deepUnref } from "./utils/functions.js"
