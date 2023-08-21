@@ -32,7 +32,7 @@ export function onBackupState(fn: () => Record<string, unknown>) {
   if (typeof window === "undefined") {
     // no handle
   } else {
-    let instance = getCurrentInstance()
+    const instance = getCurrentInstance()
     if (instance == null) {
       throw new Error("Current instance is not found.")
     }

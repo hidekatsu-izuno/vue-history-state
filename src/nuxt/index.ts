@@ -10,7 +10,7 @@ export default defineNuxtModule({
     },
   },
   setup(moduleOptions, nuxt) {
-    nuxt.options.runtimeConfig.public.historyState = defu(nuxt.options.runtimeConfig.public.historyState, {
+    nuxt.options.runtimeConfig.public.historyState = defu(nuxt.options.runtimeConfig.public.historyState as any, {
       ...moduleOptions,
     })
 

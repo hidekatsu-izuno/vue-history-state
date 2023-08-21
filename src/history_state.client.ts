@@ -724,6 +724,7 @@ function getHashElementScrollMarginTop(selector: string) {
       return parseFloat(getComputedStyle(elem).scrollMarginTop);
     }
   } catch {
+    // no handle
   }
   return 0
 }
