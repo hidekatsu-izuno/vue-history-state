@@ -1,6 +1,6 @@
 {
   "name": "vue-history-state",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "History State Module for Vue3 and Nuxt3",
   "type": "module",
   "main": "./lib/index.js",
