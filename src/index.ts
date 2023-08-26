@@ -1,4 +1,4 @@
-import { App, Plugin, getCurrentInstance, onMounted, onUnmounted, reactive } from "vue"
+import { App, Plugin, getCurrentInstance, onUnmounted, reactive } from "vue"
 import { HistoryState, HistoryStateOptions } from "./history_state.js"
 import { ClientHistoryState } from "./history_state.client.js"
 import { ServerHistoryState } from "./history_state.server.js"
@@ -57,21 +57,55 @@ export function useHistoryState(): HistoryState {
 }
 
 export function useRestorableData<T extends object>(target: T) {
-  const keys = Object.keys(target)
   const result = reactive<T>(target)
-
-  if (!(process as any).server) {
-    onBackupState(() => result as any)
+  if ((process as any).server) {
+    return result
   }
 
-  onMounted(() => {
-    const historyState = useHistoryState()
+  const historyState = useHistoryState()
+  onBackupState(() => result as any)
+
+  if (historyState.visited) {
     if (historyState.data) {
-      for (const key of keys) {
-        result[key] = historyState.data[key]
+      for (const key in historyState.data) {
+        if (Object.hasOwn(historyState.data, key)) {
+          (result as any)[key] = historyState.data[key]
+        }
       }
     }
-  })
+  }
+
+  return result
+}
+
+export async function useRestorableAsyncData<T extends object>(
+  fn: (info: Record<string, any>) => Partial<T> | Promise<Partial<T>>,
+  target: T,
+) {
+  const result = reactive(target)
+  if ((process as any).server) {
+    return result
+  }
+
+  const historyState = useHistoryState()
+  onBackupState(() => result as any)
+
+  if (historyState.visited) {
+    if (historyState.data) {
+      for (const key in historyState.data) {
+        if (Object.hasOwn(historyState.data, key)) {
+          (result as any)[key] = historyState.data[key]
+        }
+      }
+    }
+  } else {
+    const res = await fn(historyState.info || {})
+    for (const key in res) {
+      if (Object.hasOwn(res, key)) {
+        (result as any)[key] = res[key]
+      }
+    }
+  }
 
   return result
 }
