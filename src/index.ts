@@ -1,4 +1,4 @@
-import { App, Plugin, getCurrentInstance, onUnmounted } from "vue"
+import { App, Plugin, getCurrentInstance, onMounted, onUnmounted, reactive } from "vue"
 import { HistoryState, HistoryStateOptions } from "./history_state.js"
 import { ClientHistoryState } from "./history_state.client.js"
 import { ServerHistoryState } from "./history_state.server.js"
@@ -54,4 +54,24 @@ export function useHistoryState(): HistoryState {
     throw new Error("Current instance is not found.")
   }
   return instance.appContext.config.globalProperties.$historyState
+}
+
+export function useRestorableData(target: Parameters<typeof reactive>[0]) {
+  const keys = Object.keys(target)
+  const result = reactive(target) as any
+
+  if (!(process as any).server) {
+    onBackupState(() => result as any)
+  }
+
+  onMounted(() => {
+    const historyState = useHistoryState()
+    if (historyState.data) {
+      for (const key of keys) {
+        result[key] = historyState.data[key]
+      }
+    }
+  })
+
+  return result
 }
