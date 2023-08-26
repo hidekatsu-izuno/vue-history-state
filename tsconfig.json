@@ -1,11 +1,10 @@
 {
   "extends": "@tsconfig/recommended/tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
     "newLine": "LF",
     "outDir": "./module/",
-    "target": "ES2022",
+    "target": "ES2018",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,

@@ -6,6 +6,8 @@ import { deepUnref } from "./utils/functions.js"
 
 export * from "./history_state.js"
 
+const hasOwnProperty = Object.prototype.hasOwnProperty
+
 const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStateOptions) {
     options = options || {}
@@ -68,7 +70,7 @@ export function useRestorableData<T extends object>(target: T) {
   if (historyState.visited) {
     if (historyState.data) {
       for (const key in historyState.data) {
-        if (Object.hasOwn(historyState.data, key)) {
+        if (hasOwnProperty.call(historyState.data, key)) {
           (result as any)[key] = historyState.data[key]
         }
       }
@@ -93,7 +95,7 @@ export async function useRestorableAsyncData<T extends object>(
   if (historyState.visited) {
     if (historyState.data) {
       for (const key in historyState.data) {
-        if (Object.hasOwn(historyState.data, key)) {
+        if (hasOwnProperty.call(historyState.data, key)) {
           (result as any)[key] = historyState.data[key]
         }
       }
@@ -101,7 +103,7 @@ export async function useRestorableAsyncData<T extends object>(
   } else {
     const res = await fn(historyState.info || {})
     for (const key in res) {
-      if (Object.hasOwn(res, key)) {
+      if (hasOwnProperty.call(res, key)) {
         (result as any)[key] = res[key]
       }
     }

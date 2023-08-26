@@ -11,6 +11,7 @@
     "test": "vitest run --config vite.config.ts",
     "lint": "eslint --ext js,ts .",
     "lint:fix": "eslint --ext js,ts --fix",
+    "prerelease": "npm run build",
     "release": "np"
   },
   "files": [
@@ -65,14 +66,14 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@nuxt/kit": "^3.6.5",
+    "@nuxt/kit": "^3.7.0",
     "@tsconfig/recommended": "^1.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.4.0",
-    "@typescript-eslint/parser": "^6.4.0",
-    "eslint": "^8.47.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.48.0",
     "np": "^8.0.4",
-    "typescript": "^5.1.6",
-    "vitest": "^0.34.2",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.3",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
   },
