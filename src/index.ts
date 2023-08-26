@@ -56,9 +56,9 @@ export function useHistoryState(): HistoryState {
   return instance.appContext.config.globalProperties.$historyState
 }
 
-export function useRestorableData(target: Parameters<typeof reactive>[0]) {
+export function useRestorableData<T extends object>(target: T) {
   const keys = Object.keys(target)
-  const result = reactive(target) as any
+  const result = reactive<T>(target)
 
   if (!(process as any).server) {
     onBackupState(() => result as any)
