@@ -1,4 +1,4 @@
-import { App, Plugin, getCurrentInstance, onUnmounted, reactive } from "vue"
+import { App, Plugin, getCurrentInstance, onMounted, onUnmounted, reactive } from "vue"
 import { HistoryState, HistoryStateOptions } from "./history_state.js"
 import { ClientHistoryState } from "./history_state.client.js"
 import { ServerHistoryState } from "./history_state.server.js"
@@ -68,21 +68,23 @@ export function useRestorableData<T extends object>(target: T) {
   onBackupState(() => result as any)
 
   if (historyState.visited) {
-    if (historyState.data) {
-      for (const key in historyState.data) {
-        if (hasOwnProperty.call(historyState.data, key)) {
-          (result as any)[key] = historyState.data[key]
+    onMounted(() => {
+      if (historyState.data) {
+        for (const key in historyState.data) {
+          if (hasOwnProperty.call(historyState.data, key)) {
+            (result as any)[key] = historyState.data[key]
+          }
         }
       }
-    }
+    })
   }
 
   return result
 }
 
 export async function useRestorableAsyncData<T extends object>(
-  fn: (info: Record<string, any>) => Partial<T> | Promise<Partial<T>>,
   target: T,
+  fn: () => Partial<T> | Promise<Partial<T>>,
 ) {
   const result = reactive(target)
   if ((process as any).server) {
@@ -92,22 +94,24 @@ export async function useRestorableAsyncData<T extends object>(
   const historyState = useHistoryState()
   onBackupState(() => result as any)
 
-  if (historyState.visited) {
-    if (historyState.data) {
+  const resPromise = fn()
+  onMounted(async () => {
+    if (historyState.visited && historyState.data) {
       for (const key in historyState.data) {
         if (hasOwnProperty.call(historyState.data, key)) {
           (result as any)[key] = historyState.data[key]
         }
       }
     }
-  } else {
-    const res = await fn(historyState.info || {})
+
+    const res = await resPromise
     for (const key in res) {
       if (hasOwnProperty.call(res, key)) {
         (result as any)[key] = res[key]
       }
     }
-  }
+  })
 
+  await resPromise
   return result
 }
