@@ -86,7 +86,7 @@ export function useRestorableData<T extends object>(target: T) {
 
 export async function useRestorableAsyncData<T extends object>(
   target: T,
-  fn: () => Partial<T> | Promise<Partial<T>>,
+  fn: (historyState: HistoryState) => Partial<T> | Promise<Partial<T>>,
 ) {
   const result = reactive(target)
   if ((process as any).server) {
@@ -96,7 +96,7 @@ export async function useRestorableAsyncData<T extends object>(
   const historyState = useHistoryState()
   onBackupState(() => result as any)
 
-  const resPromise = fn()
+  const resPromise = fn(historyState)
   onBeforeMount(async () => {
     const res = await resPromise
 
@@ -108,9 +108,11 @@ export async function useRestorableAsyncData<T extends object>(
       }
     }
 
-    for (const key in res) {
-      if (hasOwnProperty.call(res, key)) {
-        (result as any)[key] = res[key]
+    if (res && typeof res === "object") {
+      for (const key in res) {
+        if (hasOwnProperty.call(res, key)) {
+          (result as any)[key] = res[key]
+        }
       }
     }
   })

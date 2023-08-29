@@ -109,6 +109,24 @@ const { data } = useAsyncData(() => $fetch('/api/data'), {
 onBackupState(() => data)
 ```
 
+#### Experimental: New reactivity API
+
+```javascript
+// Backup and restore data
+const data = useRestorableData({
+  key: "value"
+})
+
+// Backup, restore and fetch data
+const data = await useRestorableAsyncData({
+  key: "value"
+}, async ({ visited, info }) => {
+  if (!visited && info?.mode === "update") {
+    return $fetch("rest@example.com")
+  }
+})
+```
+
 ### Options API
 
 If you want to backup data, you have to define a *backupData* lifecycle method.
