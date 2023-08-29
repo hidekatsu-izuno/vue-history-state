@@ -1,4 +1,4 @@
-import { App, Plugin, getCurrentInstance, onMounted, onUnmounted, reactive } from "vue"
+import { App, Plugin, getCurrentInstance, onBeforeMount, onUnmounted, reactive } from "vue"
 import { HistoryState, HistoryStateOptions } from "./history_state.js"
 import { ClientHistoryState } from "./history_state.client.js"
 import { ServerHistoryState } from "./history_state.server.js"
@@ -68,7 +68,9 @@ export function useRestorableData<T extends object>(target: T) {
   onBackupState(() => result as any)
 
   if (historyState.visited) {
-    onMounted(() => {
+    const resPromise = Promise.resolve()
+    onBeforeMount(async () => {
+      await resPromise
       if (historyState.data) {
         for (const key in historyState.data) {
           if (hasOwnProperty.call(historyState.data, key)) {
@@ -95,7 +97,9 @@ export async function useRestorableAsyncData<T extends object>(
   onBackupState(() => result as any)
 
   const resPromise = fn()
-  onMounted(async () => {
+  onBeforeMount(async () => {
+    const res = await resPromise
+
     if (historyState.visited && historyState.data) {
       for (const key in historyState.data) {
         if (hasOwnProperty.call(historyState.data, key)) {
@@ -104,7 +108,6 @@ export async function useRestorableAsyncData<T extends object>(
       }
     }
 
-    const res = await resPromise
     for (const key in res) {
       if (hasOwnProperty.call(res, key)) {
         (result as any)[key] = res[key]
