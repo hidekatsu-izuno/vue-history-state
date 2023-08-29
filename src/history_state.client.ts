@@ -40,12 +40,16 @@ export class ClientHistoryState implements HistoryState {
             const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || "[]")
             this._page = backupState[0]
             this._items = backupState[1]
-            this._info = backupState[2]
             if (navType === "navigate") {
               this._action = "navigate"
               this._page = this._page + 1
             } else {
               this._action = "reload"
+            }
+            this._nextInfo = {
+              page: this._page,
+              action: this._action,
+              info: backupState[2],
             }
           } catch (error) {
             console.error("Failed to restore from sessionStorage.", error)
