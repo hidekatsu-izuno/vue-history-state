@@ -11,6 +11,7 @@ export class ClientHistoryState implements HistoryState {
   private _items = new Array<[
     ("navigate" | "push")?,
     (HistoryLocation)?,
+    any?,
     (Record<string, any> | null)?,
     (Record<string, { left: number, top: number }>)?,
   ]>([])
@@ -39,7 +40,8 @@ export class ClientHistoryState implements HistoryState {
           try {
             const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || "[]")
             this._page = backupState[0]
-            this._items = backupState[1]
+            this._info = backupState[1]
+            this._items = backupState[2]
             if (navType === "navigate") {
               this._action = "navigate"
               this._page = this._page + 1
@@ -60,6 +62,7 @@ export class ClientHistoryState implements HistoryState {
           try {
             sessionStorage.setItem("vue-history-state", LZString.compressToUTF16(JSON.stringify([
               this._page,
+              this._info,
               this._items
             ])))
           } catch (error) {
@@ -134,10 +137,12 @@ export class ClientHistoryState implements HistoryState {
         this._items[this._page] = []
       }
 
-      if (this._nextInfo && this._nextInfo.page === this._page && this._nextInfo.action === this._action) {
-        this._info = this._nextInfo.info
+      if (this._nextInfo) {
+        if (this._nextInfo.page === this._page && this._nextInfo.action === this._action) {
+          this._info = this._nextInfo.info
+        }
+        this._nextInfo = undefined
       }
-      this._nextInfo = undefined
 
       if (page == null) {
         window.history.replaceState({
@@ -166,7 +171,7 @@ export class ClientHistoryState implements HistoryState {
           await backupBehavior(to, from, savedPosition)
         }
 
-        const positions = this._items[this._page]?.[3]
+        const positions = this._items[this._page]?.[4]
         if (positions && (this._action == "back" || this._action == "forward" || this._action == "reload")) {
           if (this.options.scrollingElements) {
             const selectors = this.options.scrollingElements
@@ -230,13 +235,13 @@ export class ClientHistoryState implements HistoryState {
 
   get data(): Record<string, any> | undefined {
     const item = this._items[this._page]
-    return (item && item[2]) || undefined
+    return (item && item[3]) || undefined
   }
 
   set data(value: Record<string, unknown> | undefined) {
     const item = this._items[this._page]
     if (item) {
-      item[2] = deepUnref(value) ?? null
+      item[3] = deepUnref(value) ?? null
     }
   }
 
@@ -413,12 +418,13 @@ export class ClientHistoryState implements HistoryState {
     }
 
     this._items[this._page][1] = this._route
+    this._items[this._page][2] = this._info
 
     if (this._dataFuncs != null) {
       const backupData = this._dataFuncs.reduce((prev, current) => {
         return Object.assign(prev, current())
       }, {})
-      this._items[this._page][2] = backupData
+      this._items[this._page][3] = backupData
     }
 
     if (this.options.overrideDefaultScrollBehavior !== false) {
@@ -435,8 +441,8 @@ export class ClientHistoryState implements HistoryState {
           }
         }
       }
-      positions["window"] = { left: window.pageXOffset, top: window.pageYOffset }
-      this._items[this._page][3] = positions
+      positions["window"] = { left: window.scrollX, top: window.scrollY }
+      this._items[this._page][4] = positions
     }
 
     const maxPage = Math.min(this.options.maxHistoryLength || window.history.length, window.history.length)
@@ -489,7 +495,7 @@ export class ClientHistoryState implements HistoryState {
   private _debug(marker: string) {
     console.log(`[${marker}] page: ${this._page}, action: ${JSON.stringify(this._action)}, route: ${JSON.stringify(this._route)}\n` +
       this._items.reduce((prev1: unknown, current1: Array<unknown>, index) => {
-        return `${prev1}  items[${index}] action: ${JSON.stringify(current1[0])}, route: ${JSON.stringify(current1[1])}, data: ${JSON.stringify(current1[2])}, scrollPositions: ${JSON.stringify(current1[3])}\n`
+        return `${prev1}  items[${index}] action: ${JSON.stringify(current1[0])}, route: ${JSON.stringify(current1[1])}, info: ${JSON.stringify(current1[2])}, data: ${JSON.stringify(current1[3])}, scrollPositions: ${JSON.stringify(current1[4])}\n`
       }, "")
     )
   }
@@ -500,6 +506,7 @@ class HistoryItemImpl implements HistoryItem {
     private item: [
       ("navigate" | "push")?,
       (HistoryLocation)?,
+      any?,
       (Record<string, any> | null)?,
       (Record<string, { left: number, top: number }>)?,
     ]
@@ -511,15 +518,15 @@ class HistoryItemImpl implements HistoryItem {
   }
 
   get data(): Record<string, any> | undefined {
-    return this.item[2] ?? undefined
+    return this.item[3] ?? undefined
   }
 
   set data(value: Record<string, unknown> | undefined) {
-    this.item[2] = deepUnref(value) ?? null
+    this.item[3] = deepUnref(value) ?? null
   }
 
   get scrollPositions(): Record<string, { left: number, top: number }> {
-    return this.item[3] || {}
+    return this.item[4] || {}
   }
 }
 
