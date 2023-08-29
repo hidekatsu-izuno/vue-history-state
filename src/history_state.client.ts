@@ -40,6 +40,7 @@ export class ClientHistoryState implements HistoryState {
             const backupState = JSON.parse(LZString.decompressFromUTF16(backupText) || "[]")
             this._page = backupState[0]
             this._items = backupState[1]
+            this._info = backupState[2]
             if (navType === "navigate") {
               this._action = "navigate"
               this._page = this._page + 1
@@ -60,7 +61,8 @@ export class ClientHistoryState implements HistoryState {
           try {
             sessionStorage.setItem("vue-history-state", LZString.compressToUTF16(JSON.stringify([
               this._page,
-              this._items
+              this._items,
+              this._info,
             ])))
           } catch (error) {
             console.error("Failed to save to sessionStorage.", error)
