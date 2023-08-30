@@ -109,20 +109,30 @@ const { data } = useAsyncData(() => $fetch('/api/data'), {
 onBackupState(() => data)
 ```
 
-#### Experimental: New reactivity API
+#### New SSR-friendly reactivity APIs (experimental)
 
 ```javascript
 // Backup and restore data
-const data = useRestorableData({
+const data = useRestorableState({
   key: "value"
 })
 
 // Backup, restore and fetch data
-const data = await useRestorableAsyncData({
-  key: "value"
-}, async ({ visited, info }) => {
-  if (!visited && info?.mode === "update") {
-    return $fetch("rest@example.com")
+const data = useRestorableState({
+  mode: "create",
+  key: "value",
+}, ({ visited, info }) => {
+  if (!visited) {
+    if (info?.mode === "update" || info?.mode === "delete") {
+      return $fetch("api.example.com").then(res => ({
+        ...res,
+        mode: info.mode,
+      }))
+    }
+  } else {
+    if (info?.refresh) {
+      return $fetch("api.example.com")
+    }
   }
 })
 ```
@@ -162,9 +172,16 @@ By default this method returns basically 'navigate' on server.
 But many browsers send cache-control='maxage=0' when reloading.
 It heuristically returns 'reload' then.
 
-#### visited
+#### visited: boolean
 
 If the action is back, forward or reload, this property returns true.
+
+#### canGoBack: boolean / canGoForward: boolean
+
+You can test if you can go back/forward.
+
+This method cannot be used on the server.
+
 #### page: number
 
 A current page number (an integer beginning with 0).
@@ -176,6 +193,12 @@ This method always returns 0 on server.
 A backup data.
 
 If you want to clear the backup data, you set undefined to this property.
+
+This method always returns undefined on server.
+
+### info: object?
+
+A transferred data from the previous page.
 
 This method always returns undefined on server.
 
@@ -226,6 +249,34 @@ if (page != null) {
     router.go(page - historyState.page)
 }
 ```
+
+#### push(url, info?)
+
+This method is almost the same as router.push(url).
+
+If you set info parameter, it passes info data (like a message) to the next page.
+
+#### reload()
+
+This method is almost the same as window.location.reload().
+
+#### back(info?)
+
+This method is almost the same as window.history.back().
+
+If you set info parameter, it passes info data (like a message) to the backwarded page.
+
+#### forward(info?)
+
+This method is almost the same as window.history.forward().
+
+If you set info parameter, it passes info data (like a message) to the forwarded page.
+
+#### goToPage(page, info?)
+
+This method is almost the same as window.history.go(page - nav.page).
+
+If you set info parameter, it passes info data (like a message) to the page.
 
 ### HistoryItem
 

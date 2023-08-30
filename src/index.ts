@@ -6,8 +6,6 @@ import { deepUnref } from "./utils/functions.js"
 
 export * from "./history_state.js"
 
-const hasOwnProperty = Object.prototype.hasOwnProperty
-
 const HistoryStatePlugin: Plugin = {
   install(app: App, options: HistoryStateOptions) {
     options = options || {}
@@ -58,65 +56,43 @@ export function useHistoryState(): HistoryState {
   return instance.appContext.config.globalProperties.$historyState
 }
 
-export function useRestorableData<T extends object>(target: T) {
-  const result = reactive<T>(target)
+export function useRestorableData<T extends object>(
+  data: T,
+  fn?: (historyState: HistoryState) => (undefined | Partial<T>) | Promise<(undefined | Partial<T>)>,
+) {
+  const result = reactive(data)
   if ((process as any).server) {
     return result
   }
 
   const historyState = useHistoryState()
-  onBackupState(() => result as any)
+  onBackupState(() => data as any)
 
-  if (historyState.visited) {
-    const resPromise = Promise.resolve()
+  const fnResult = fn ? fn(historyState) : undefined
+  if (fnResult || (historyState.visited && historyState.data)) {
     onBeforeMount(async () => {
-      await resPromise
-      if (historyState.data) {
+      await Promise.resolve()
+
+      const hasOwnProperty = Object.prototype.hasOwnProperty
+
+      if (historyState.visited && historyState.data) {
         for (const key in historyState.data) {
           if (hasOwnProperty.call(historyState.data, key)) {
             (result as any)[key] = historyState.data[key]
           }
         }
       }
+
+      const res = await fnResult
+      if (res && typeof res === "object") {
+        for (const key in res) {
+          if (hasOwnProperty.call(res, key)) {
+            (result as any)[key] = res[key]
+          }
+        }
+      }
     })
   }
 
-  return result
-}
-
-export async function useRestorableAsyncData<T extends object>(
-  target: T,
-  fn: (historyState: HistoryState) => Partial<T> | Promise<Partial<T>>,
-) {
-  const result = reactive(target)
-  if ((process as any).server) {
-    return result
-  }
-
-  const historyState = useHistoryState()
-  onBackupState(() => result as any)
-
-  const resPromise = fn(historyState)
-  onBeforeMount(async () => {
-    const res = await resPromise
-
-    if (historyState.visited && historyState.data) {
-      for (const key in historyState.data) {
-        if (hasOwnProperty.call(historyState.data, key)) {
-          (result as any)[key] = historyState.data[key]
-        }
-      }
-    }
-
-    if (res && typeof res === "object") {
-      for (const key in res) {
-        if (hasOwnProperty.call(res, key)) {
-          (result as any)[key] = res[key]
-        }
-      }
-    }
-  })
-
-  await resPromise
-  return result
+  return result as T
 }

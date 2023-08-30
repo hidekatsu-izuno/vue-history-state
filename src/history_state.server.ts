@@ -66,7 +66,7 @@ export class ServerHistoryState implements HistoryState {
     throw new Error("data is not supported on server.")
   }
 
-  get info(): any | undefined {
+  get info(): Record<string, any> | undefined {
     return undefined
   }
 
@@ -98,24 +98,24 @@ export class ServerHistoryState implements HistoryState {
     throw new Error("findBackPosition is not supported on server.")
   }
 
-  push(url: string, info?: any): void {
+  push(url: string, info?: Record<string, any>): void {
     throw new Error("push is not supported on server.")
   }
 
-  reload(info?: any): void {
-    throw new Error("reload is not supported on server.")
-  }
-
-  back(info?: any): void {
+  back(info?: Record<string, any>): void {
     throw new Error("back is not supported on server.")
   }
 
-  forward(info?: any): void {
+  forward(info?: Record<string, any>): void {
     throw new Error("forward is not supported on server.")
   }
 
-  goToPage(page: number, info?: any): void {
+  goToPage(page: number, info?: Record<string, any>): void {
     throw new Error("goToPage is not supported on server.")
+  }
+
+  reload(): void {
+    throw new Error("reload is not supported on server.")
   }
 
   private _debug(marker: string) {

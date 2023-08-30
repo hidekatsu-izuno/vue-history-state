@@ -45,7 +45,7 @@ export interface HistoryState {
 
   set data(value: Record<string, unknown> | undefined)
 
-  get info(): any | undefined
+  get info(): Record<string, any> | undefined
 
   get canGoBack(): boolean
 
@@ -61,13 +61,13 @@ export interface HistoryState {
 
   findBackPage(location: HistoryLocationRaw, partial?: boolean): number | undefined
 
-  push(url: string, info?: any): void
+  push(url: string, info?: Record<string, any>): void
 
-  reload(info?: any): void
+  back(info?: Record<string, any>): void
 
-  back(info?: any): void
+  forward(info?: Record<string, any>): void
 
-  forward(info?: any): void
+  goToPage(page: number, info?: Record<string, any>): void
 
-  goToPage(page: number, info?: any): void
+  reload(): void
 }

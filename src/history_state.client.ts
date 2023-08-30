@@ -17,7 +17,7 @@ export class ClientHistoryState implements HistoryState {
   private _dataFuncs = new Array<() => Record<string, unknown>>()
   private _route?: HistoryLocation = undefined
   private _nextInfo?: NextInfo
-  private _info?: any
+  private _info?: Record<string, any> = undefined
 
   constructor(
     app: App,
@@ -253,7 +253,7 @@ export class ClientHistoryState implements HistoryState {
     }
   }
 
-  get info(): any | undefined {
+  get info(): Record<string, any> | undefined {
     return this._info
   }
 
@@ -359,8 +359,7 @@ export class ClientHistoryState implements HistoryState {
     return undefined
   }
 
-
-  push(url: string, info?: any) {
+  push(url: string, info?: Record<string, any>) {
     if (info !== undefined) {
       this._setNextInfo("push", info)
     }
@@ -372,28 +371,21 @@ export class ClientHistoryState implements HistoryState {
     router.push(url)
   }
 
-  reload(info?: any) {
-    if (info !== undefined) {
-      this._setNextInfo("reload", info)
-    }
-    window.location.reload()
-  }
-
-  back(info?: any) {
+  back(info?: Record<string, any>) {
     if (info !== undefined) {
       this._setNextInfo("back", info)
     }
     window.history.back()
   }
 
-  forward(info?: any)  {
+  forward(info?: Record<string, any>)  {
     if (info !== undefined) {
       this._setNextInfo("forward", info)
     }
     window.history.forward()
   }
 
-  goToPage(page: number, info?: any) {
+  goToPage(page: number, info?: Record<string, any>) {
     if (!this._canGoToPage(page)) {
       throw new RangeError(`The page is out of range: ${page}`)
     }
@@ -409,6 +401,10 @@ export class ClientHistoryState implements HistoryState {
       }
       window.history.go(page - this.page)
     }
+  }
+
+  reload() {
+    window.location.reload()
   }
 
   private _save() {
@@ -477,11 +473,7 @@ export class ClientHistoryState implements HistoryState {
     return true
   }
 
-  private _setNextInfo(action: string, info: any) {
-    if (info === undefined) {
-      return
-    }
-
+  private _setNextInfo(action: string, info: Record<string, any>) {
     let page = this._page
     if (action === "push" || action === "forward") {
       page = page + 1
@@ -550,7 +542,7 @@ function getNavigationType() {
 declare type NextInfo = {
   page: number,
   action: string,
-  info: any,
+  info: Record<string, any>,
 }
 
 function parseFullPath(path: string) {
