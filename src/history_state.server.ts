@@ -114,7 +114,7 @@ export class ServerHistoryState implements HistoryState {
     throw new Error("goToPage is not supported on server.")
   }
 
-  reload(): void {
+  reload(info?: Record<string, any>): void {
     throw new Error("reload is not supported on server.")
   }
 

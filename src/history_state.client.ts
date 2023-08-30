@@ -66,7 +66,7 @@ export class ClientHistoryState implements HistoryState {
             sessionStorage.setItem("vue-history-state", LZString.compressToUTF16(JSON.stringify([
               this._page,
               this._items,
-              this._info,
+              this._nextInfo?.info,
             ])))
           } catch (error) {
             console.error("Failed to save to sessionStorage.", error)
@@ -403,7 +403,10 @@ export class ClientHistoryState implements HistoryState {
     }
   }
 
-  reload() {
+  reload(info?: Record<string, any>) {
+    if (info !== undefined) {
+      this._setNextInfo("reload", info)
+    }
     window.location.reload()
   }
 

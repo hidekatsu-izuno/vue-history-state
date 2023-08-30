@@ -69,5 +69,5 @@ export interface HistoryState {
 
   goToPage(page: number, info?: Record<string, any>): void
 
-  reload(): void
+  reload(info?: Record<string, any>): void
 }

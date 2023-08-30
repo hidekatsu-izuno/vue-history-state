@@ -250,33 +250,33 @@ if (page != null) {
 }
 ```
 
-#### push(url, info?)
+#### push(url: string, info?: Record<string, any>)
 
 This method is almost the same as router.push(url).
 
 If you set info parameter, it passes info data (like a message) to the next page.
 
-#### reload()
-
-This method is almost the same as window.location.reload().
-
-#### back(info?)
+#### back(info?: Record<string, any>)
 
 This method is almost the same as window.history.back().
 
 If you set info parameter, it passes info data (like a message) to the backwarded page.
 
-#### forward(info?)
+#### forward(info?: Record<string, any>)
 
 This method is almost the same as window.history.forward().
 
 If you set info parameter, it passes info data (like a message) to the forwarded page.
 
-#### goToPage(page, info?)
+#### goToPage(page: number, info?: Record<string, any>)
 
 This method is almost the same as window.history.go(page - nav.page).
 
 If you set info parameter, it passes info data (like a message) to the page.
+
+#### reload(info?: Record<string, any>)
+
+This method is almost the same as window.location.reload().
 
 ### HistoryItem
 
