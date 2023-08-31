@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.14.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.13.1...v0.14.0) (2023-03-26)
+### [0.14.0](https://github.com/hidekatsu-izuno/vue-history-state/compare/v0.13.1...v0.14.0) (2023-08-31)
 
 ### Features
 
