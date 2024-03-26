@@ -12,9 +12,10 @@ ported to work with Vue 3 and Nuxt 3.
 
 ## Features
 
-- Restore a last state when going forward or back.
-- Restore a state when reloading.
-- Restore a last state when going forward or back after reloading.
+- Restore the last state when going forward or back.
+- Restore the state when reloading.
+- Restore the last state when going forward or back after reloading.
+- Pass the infomation to a next page.
 
 ## Supported Vuersion
 
